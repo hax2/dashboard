@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, ArrowLeft, Wand2 } from "lucide-react";
 
