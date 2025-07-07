@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, ArrowLeft, Wand2 } from "lucide-react";
 
-/* ---------- Types ---------- */
+/* ---------- types ---------- */
 interface Task {
   id: string;
   text: string;
@@ -10,7 +10,7 @@ interface Task {
 interface WeeklyTask {
   id: string;
   text: string;
-  lastCompleted: string | null; // ISO date string or null
+  lastCompleted: string | null;
 }
 interface Project {
   id: string;
@@ -21,355 +21,698 @@ interface Project {
   notes: string;
 }
 interface DailyHistoryEntry {
-  date: string;         // ISO date
-  tasks: string[];      // completed task texts
+  date: string;
+  tasks: string[];
 }
 
-/* ---------- Helpers ---------- */
+/* ---------- helpers ---------- */
 const todayISO = () => new Date().toISOString().slice(0, 10);
-const daysAgo = (date: string | null) => {
-  if (!date) return "never";
-  return Math.floor(
-    (Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)
-  );
-};
+const daysAgo = (d: string | null) =>
+  d ? Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000) : "never";
 const uuid = () => Math.random().toString(36).slice(2, 10) + Date.now();
 
-/* ---------- Debounce (per-key, 300 ms) ---------- */
+/* ---------- debounce ---------- */
 const debounce = (() => {
-  const timers: Record<string, ReturnType<typeof setTimeout>> = {};
-  return (key: string, fn: () => void, delay = 300) => {
-    clearTimeout(timers[key]);
-    timers[key] = setTimeout(fn, delay);
+  const t: Record<string, ReturnType<typeof setTimeout>> = {};
+  return (k: string, fn: () => void, ms = 300) => {
+    clearTimeout(t[k]);
+    t[k] = setTimeout(fn, ms);
   };
 })();
 
-/* ---------- Storage keys ---------- */
-const STORAGE_KEYS = {
-  daily: "samer-daily-tasks",
-  weekly: "samer-weekly-tasks",
+/* ---------- storage keys ---------- */
+const STORAGE = {
+  daily: "samer-daily",
+  weekly: "samer-weekly",
   projects: "samer-projects",
-  scratch: "samer-scratchpad",
+  scratch: "samer-scratch",
   completed: "samer-completed",
   deleted: "samer-deleted",
-  dailyHistory: "samer-daily-history",
+  history: "samer-history",
 };
 
-/* ===================================================
-                       Component
-   =================================================== */
+/* ====================================================== */
 const SamerDashboard: React.FC = () => {
-  /* ---------- State ---------- */
-  const [dailyTasks, setDailyTasks]           = useState<Task[]>([]);
-  const [weeklyTasks, setWeeklyTasks]         = useState<WeeklyTask[]>([]);
-  const [scratchpad,  setScratchpad]          = useState("");
-  const [projects,    setProjects]            = useState<Project[]>([]);
-  const [completed,   setCompleted]           = useState<{ daily: Task[]; weekly: WeeklyTask[]; projects: Project[] }>({ daily: [], weekly: [], projects: [] });
-  const [deleted,     setDeleted]             = useState<{ daily: Task[]; weekly: WeeklyTask[]; projects: Project[] }>({ daily: [], weekly: [], projects: [] });
-  const [dailyHistory,setDailyHistory]        = useState<DailyHistoryEntry[]>([]);
-  const [view, setView] = useState<"projects"|"completed"|"deleted"|"dailyReview"|{ projectId: string }>("projects");
-  const [prompt,setPrompt] = useState<{open:boolean;label:string;onSubmit:(v:string)=>void}>({ open:false,label:"",onSubmit:()=>{} });
+  /* ---------- state ---------- */
+  const [daily, setDaily] = useState<Task[]>([]);
+  const [weekly, setWeekly] = useState<WeeklyTask[]>([]);
+  const [scratch, setScratch] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [completed, setCompleted] = useState<{
+    daily: Task[];
+    weekly: WeeklyTask[];
+    projects: Project[];
+  }>({ daily: [], weekly: [], projects: [] });
+  const [deleted, setDeleted] = useState<{
+    daily: Task[];
+    weekly: WeeklyTask[];
+    projects: Project[];
+  }>({ daily: [], weekly: [], projects: [] });
+  const [history, setHistory] = useState<DailyHistoryEntry[]>([]);
+  const [view, setView] = useState<
+    "projects" | "completed" | "deleted" | "review" | { projectId: string }
+  >("projects");
+  const [prompt, setPrompt] = useState<{
+    open: boolean;
+    label: string;
+    onSubmit: (v: string) => void;
+  }>({ open: false, label: "", onSubmit: () => {} });
 
-  /* ---------- Load from localStorage on mount ---------- */
+  /* ---------- load ---------- */
   useEffect(() => {
-    const load = (key: keyof typeof STORAGE_KEYS, setter: any) => {
-      const val = localStorage.getItem(STORAGE_KEYS[key]);
-      if (val) setter(JSON.parse(val));
+    const g = (k: keyof typeof STORAGE, s: any) => {
+      const v = localStorage.getItem(STORAGE[k]);
+      if (v) s(JSON.parse(v));
     };
-    load("daily",        setDailyTasks);
-    load("weekly",       setWeeklyTasks);
-    load("projects",     setProjects);
-    load("scratch",      setScratchpad);
-    load("completed",    setCompleted);
-    load("deleted",      setDeleted);
-    load("dailyHistory", setDailyHistory);
+    g("daily", setDaily);
+    g("weekly", setWeekly);
+    g("projects", setProjects);
+    g("scratch", setScratch);
+    g("completed", setCompleted);
+    g("deleted", setDeleted);
+    g("history", setHistory);
   }, []);
 
-  /* ---------- Persist to localStorage (debounced) ---------- */
-  useEffect(() => {
-    debounce("daily", () =>
-      localStorage.setItem(STORAGE_KEYS.daily, JSON.stringify(dailyTasks)));
-  }, [dailyTasks]);
+  /* ---------- save (debounced) ---------- */
+  useEffect(
+    () => debounce("d", () => localStorage.setItem(STORAGE.daily, JSON.stringify(daily))),
+    [daily]
+  );
+  useEffect(
+    () => debounce("w", () => localStorage.setItem(STORAGE.weekly, JSON.stringify(weekly))),
+    [weekly]
+  );
+  useEffect(
+    () => debounce("p", () => localStorage.setItem(STORAGE.projects, JSON.stringify(projects))),
+    [projects]
+  );
+  useEffect(
+    () => debounce("s", () => localStorage.setItem(STORAGE.scratch, scratch)),
+    [scratch]
+  );
+  useEffect(
+    () => debounce("c", () => localStorage.setItem(STORAGE.completed, JSON.stringify(completed))),
+    [completed]
+  );
+  useEffect(
+    () => debounce("del", () => localStorage.setItem(STORAGE.deleted, JSON.stringify(deleted))),
+    [deleted]
+  );
+  useEffect(
+    () => debounce("h", () => localStorage.setItem(STORAGE.history, JSON.stringify(history))),
+    [history]
+  );
 
-  useEffect(() => {
-    debounce("weekly", () =>
-      localStorage.setItem(STORAGE_KEYS.weekly, JSON.stringify(weeklyTasks)));
-  }, [weeklyTasks]);
+  /* ---------- prompt ---------- */
+  const openPrompt = (l: string, cb: (v: string) => void) =>
+    setPrompt({ open: true, label: l, onSubmit: cb });
+  const closePrompt = () => setPrompt({ open: false, label: "", onSubmit: () => {} });
 
-  useEffect(() => {
-    debounce("projects", () =>
-      localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(projects)));
-  }, [projects]);
-
-  useEffect(() => {
-    debounce("scratch", () =>
-      localStorage.setItem(STORAGE_KEYS.scratch, scratchpad));
-  }, [scratchpad]);
-
-  useEffect(() => {
-    debounce("completed", () =>
-      localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(completed)));
-  }, [completed]);
-
-  useEffect(() => {
-    debounce("deleted", () =>
-      localStorage.setItem(STORAGE_KEYS.deleted, JSON.stringify(deleted)));
-  }, [deleted]);
-
-  useEffect(() => {
-    debounce("dailyHistory", () =>
-      localStorage.setItem(STORAGE_KEYS.dailyHistory, JSON.stringify(dailyHistory)));
-  }, [dailyHistory]);
-
-  /* ---------- Prompt helpers ---------- */
-  const openPrompt  = (label:string,onSubmit:(v:string)=>void) => setPrompt({ open:true,label,onSubmit });
-  const closePrompt = () => setPrompt({ open:false,label:"",onSubmit:()=>{} });
-
-  /* ---------- Daily ---------- */
-  const handleNewDay = () => {
-    const done = dailyTasks.filter(t=>t.done);
+  /* ---------- daily ---------- */
+  const newDay = () => {
+    const done = daily.filter(t => t.done);
     if (done.length)
-      setDailyHistory(prev=>[
-        { date:todayISO(), tasks:done.map(t=>t.text) },
-        ...prev.filter(e=>e.date!==todayISO()),
+      setHistory(h => [
+        { date: todayISO(), tasks: done.map(t => t.text) },
+        ...h.filter(e => e.date !== todayISO()),
       ]);
-    setDailyTasks(prev=>prev.map(t=>({ ...t, done:false })));
+    setDaily(d => d.map(t => ({ ...t, done: false })));
   };
-  const handleAddDaily    = (text:string) => setDailyTasks(p=>[...p,{id:uuid(),text,done:false}]);
-  const handleDeleteDaily = (id:string)  => {
-    const t = dailyTasks.find(t=>t.id===id); if(!t) return;
-    setDailyTasks(p=>p.filter(t=>t.id!==id));
-    setDeleted    (p=>({ ...p, daily:[t,...p.daily] }));
+  const addDaily = (t: string) => setDaily(d => [...d, { id: uuid(), text: t, done: false }]);
+  const delDaily = (id: string) => {
+    const t = daily.find(t => t.id === id);
+    if (!t) return;
+    setDaily(d => d.filter(t => t.id !== id));
+    setDeleted(d => ({ ...d, daily: [t, ...d.daily] }));
   };
-  const handleToggleDaily = (id:string)  =>
-    setDailyTasks(p=>p.map(t=>t.id===id?{...t,done:!t.done}:t));
+  const toggleDaily = (id: string) =>
+    setDaily(d => d.map(t => (t.id === id ? { ...t, done: !t.done } : t)));
 
-  /* ---------- Weekly ---------- */
-  const handleAddWeekly     = (txt:string) => setWeeklyTasks(p=>[...p,{id:uuid(),text:txt,lastCompleted:null}]);
-  const handleDeleteWeekly  = (id:string)  => {
-    const t=weeklyTasks.find(t=>t.id===id); if(!t) return;
-    setWeeklyTasks(p=>p.filter(t=>t.id!==id));
-    setDeleted(p=>({ ...p, weekly:[t,...p.weekly]}));
+  /* ---------- weekly ---------- */
+  const addWeekly = (t: string) =>
+    setWeekly(w => [...w, { id: uuid(), text: t, lastCompleted: null }]);
+  const delWeekly = (id: string) => {
+    const t = weekly.find(t => t.id === id);
+    if (!t) return;
+    setWeekly(w => w.filter(t => t.id !== id));
+    setDeleted(d => ({ ...d, weekly: [t, ...d.weekly] }));
   };
-  const handleCompleteWeekly= (id:string)  => {
-    setWeeklyTasks(p=>p.map(t=>t.id===id?{...t,lastCompleted:todayISO()}:t));
-    const t=weeklyTasks.find(t=>t.id===id); if(t) setCompleted(p=>({...p,weekly:[t,...p.weekly]}));
+  const completeWeekly = (id: string) => {
+    setWeekly(w =>
+      w.map(t => (t.id === id ? { ...t, lastCompleted: todayISO() } : t))
+    );
+    const t = weekly.find(t => t.id === id);
+    if (t) setCompleted(c => ({ ...c, weekly: [t, ...c.weekly] }));
   };
 
-  /* ---------- Scratchpad ---------- */
-  const handleScratchChange = (e:React.ChangeEvent<HTMLTextAreaElement>) => setScratchpad(e.target.value);
+  /* ---------- scratch ---------- */
+  const changeScratch = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setScratch(e.target.value);
 
-  /* ---------- Projects ---------- */
-  const handleAddProject = (title:string) =>
-    setProjects(p=>[{ id:uuid(),title,completed:false,deleted:false,subtasks:[],notes:"" },...p]);
-  const handleDeleteProject = (id:string)=> {
-    const proj=projects.find(p=>p.id===id); if(!proj) return;
-    setProjects(p=>p.filter(pr=>pr.id!==id));
-    setDeleted (p=>({...p,projects:[proj,...p.projects]}));
-    if(typeof view==="object"&&view.projectId===id) setView("projects");
+  /* ---------- projects ---------- */
+  const addProject = (t: string) =>
+    setProjects(p => [
+      { id: uuid(), title: t, completed: false, deleted: false, subtasks: [], notes: "" },
+      ...p,
+    ]);
+  const delProject = (id: string) => {
+    const p = projects.find(p => p.id === id);
+    if (!p) return;
+    setProjects(pr => pr.filter(p => p.id !== id));
+    setDeleted(d => ({ ...d, projects: [p, ...d.projects] }));
+    if (typeof view === "object" && view.projectId === id) setView("projects");
   };
-  const handleCompleteProject = (id:string) => {
-    setProjects(p=>p.map(pr=>pr.id===id?{...pr,completed:true}:pr));
-    const proj=projects.find(p=>p.id===id); if(proj) setCompleted(p=>({...p,projects:[proj,...p.projects]}));
+  const completeProject = (id: string) => {
+    setProjects(pr => pr.map(p => (p.id === id ? { ...p, completed: true } : p)));
+    const p = projects.find(p => p.id === id);
+    if (p) setCompleted(c => ({ ...c, projects: [p, ...c.projects] }));
   };
-  const handleAddSubtask = (pid:string,txt:string) =>
-    setProjects(p=>p.map(pr=>pr.id===pid?{...pr,subtasks:[...pr.subtasks,{id:uuid(),text:txt,done:false}]}:pr));
-  const handleDeleteSubtask = (pid:string,sid:string)=>
-    setProjects(p=>p.map(pr=>pr.id===pid?{...pr,subtasks:pr.subtasks.filter(s=>s.id!==sid)}:pr));
-  const handleToggleSubtask = (pid:string,sid:string)=>
-    setProjects(p=>p.map(pr=>pr.id===pid?{...pr,subtasks:pr.subtasks.map(s=>s.id===sid?{...s,done:!s.done}:s)}:pr));
-  const handleAddAISubtasks = (pid:string)=>{
-    const ai=["Research","Outline","Draft","Review","Finalize"];
-    setProjects(p=>p.map(pr=>pr.id===pid?{
-      ...pr,
-      subtasks:[
-        ...pr.subtasks,
-        ...ai.filter(t=>!pr.subtasks.some(s=>s.text===t)).map(t=>({id:uuid(),text:t,done:false}))
-      ]
-    }:pr));
-  };
-  const handleProjectNotes  = (pid:string,n:string)=>
-    setProjects(p=>p.map(pr=>pr.id===pid?{...pr,notes:n}:pr));
+  const addSubtask = (pid: string, txt: string) =>
+    setProjects(pr =>
+      pr.map(p =>
+        p.id === pid
+          ? { ...p, subtasks: [...p.subtasks, { id: uuid(), text: txt, done: false }] }
+          : p
+      )
+    );
+  const delSubtask = (pid: string, sid: string) =>
+    setProjects(pr =>
+      pr.map(p =>
+        p.id === pid ? { ...p, subtasks: p.subtasks.filter(s => s.id !== sid) } : p
+      )
+    );
+  const toggleSubtask = (pid: string, sid: string) =>
+    setProjects(pr =>
+      pr.map(p =>
+        p.id === pid
+          ? {
+              ...p,
+              subtasks: p.subtasks.map(s =>
+                s.id === sid ? { ...s, done: !s.done } : s
+              ),
+            }
+          : p
+      )
+    );
+  const addAISubtasks = (pid: string) =>
+    setProjects(pr =>
+      pr.map(p =>
+        p.id === pid
+          ? {
+              ...p,
+              subtasks: [
+                ...p.subtasks,
+                ...["Research", "Outline", "Draft", "Review", "Finalize"]
+                  .filter(t => !p.subtasks.some(s => s.text === t))
+                  .map(t => ({ id: uuid(), text: t, done: false })),
+              ],
+            }
+          : p
+      )
+    );
+  const setNotes = (pid: string, n: string) =>
+    setProjects(pr => pr.map(p => (p.id === pid ? { ...p, notes: n } : p)));
 
-  /* ---------- Undone / Restore / Permanent delete ---------- */
-  const handleUndone = (type:"daily"|"weekly"|"projects",id:string)=>{
-    if(type==="daily"){
-      const t=completed.daily.find(t=>t.id===id); if(!t) return;
-      setCompleted(p=>({...p,daily:p.daily.filter(t=>t.id!==id)}));
-      setDailyTasks(p=>[...p,{...t,done:false}]);
-    }else if(type==="weekly"){
-      const t=completed.weekly.find(t=>t.id===id); if(!t) return;
-      setCompleted(p=>({...p,weekly:p.weekly.filter(t=>t.id!==id)}));
-      setWeeklyTasks(p=>[...p,{...t,lastCompleted:null}]);
-    }else{
-      const pr=completed.projects.find(pr=>pr.id===id); if(!pr) return;
-      setCompleted(p=>({...p,projects:p.projects.filter(pr=>pr.id!==id)}));
-      setProjects(p=>[{...pr,completed:false},...p]);
+  /* ---------- undo / restore / purge ---------- */
+  const undone = (type: "daily" | "weekly" | "projects", id: string) => {
+    if (type === "daily") {
+      const t = completed.daily.find(t => t.id === id);
+      if (!t) return;
+      setCompleted(c => ({ ...c, daily: c.daily.filter(t => t.id !== id) }));
+      setDaily(d => [...d, { ...t, done: false }]);
+    } else if (type === "weekly") {
+      const t = completed.weekly.find(t => t.id === id);
+      if (!t) return;
+      setCompleted(c => ({ ...c, weekly: c.weekly.filter(t => t.id !== id) }));
+      setWeekly(w => [...w, { ...t, lastCompleted: null }]);
+    } else {
+      const p = completed.projects.find(p => p.id === id);
+      if (!p) return;
+      setCompleted(c => ({ ...c, projects: c.projects.filter(p => p.id !== id) }));
+      setProjects(pr => [{ ...p, completed: false }, ...pr]);
     }
     setView("projects");
   };
-  const handleRestore= (type:"daily"|"weekly"|"projects",id:string)=>{
-    if(type==="daily"){
-      const t=deleted.daily.find(t=>t.id===id); if(!t)return;
-      setDeleted(p=>({...p,daily:p.daily.filter(t=>t.id!==id)}));
-      setDailyTasks(p=>[...p,{...t,done:false}]);
-    }else if(type==="weekly"){
-      const t=deleted.weekly.find(t=>t.id===id); if(!t)return;
-      setDeleted(p=>({...p,weekly:p.weekly.filter(t=>t.id!==id)}));
-      setWeeklyTasks(p=>[...p,{...t,lastCompleted:null}]);
-    }else{
-      const pr=deleted.projects.find(pr=>pr.id===id); if(!pr)return;
-      setDeleted(p=>({...p,projects:p.projects.filter(pr=>pr.id!==id)}));
-      setProjects(p=>[{...pr,deleted:false},...p]);
+  const restore = (type: "daily" | "weekly" | "projects", id: string) => {
+    if (type === "daily") {
+      const t = deleted.daily.find(t => t.id === id);
+      if (!t) return;
+      setDeleted(d => ({ ...d, daily: d.daily.filter(t => t.id !== id) }));
+      setDaily(d => [...d, { ...t, done: false }]);
+    } else if (type === "weekly") {
+      const t = deleted.weekly.find(t => t.id === id);
+      if (!t) return;
+      setDeleted(d => ({ ...d, weekly: d.weekly.filter(t => t.id !== id) }));
+      setWeekly(w => [...w, { ...t, lastCompleted: null }]);
+    } else {
+      const p = deleted.projects.find(p => p.id === id);
+      if (!p) return;
+      setDeleted(d => ({ ...d, projects: d.projects.filter(p => p.id !== id) }));
+      setProjects(pr => [{ ...p, deleted: false }, ...pr]);
     }
   };
-  const handlePermanentDelete=(type:"daily"|"weekly"|"projects",id:string)=>{
-    if(type==="daily")   setDeleted(p=>({...p,daily:p.daily.filter(t=>t.id!==id)}));
-    if(type==="weekly")  setDeleted(p=>({...p,weekly:p.weekly.filter(t=>t.id!==id)}));
-    if(type==="projects")setDeleted(p=>({...p,projects:p.projects.filter(pr=>pr.id!==id)}));
+  const purge = (type: "daily" | "weekly" | "projects", id: string) => {
+    if (type === "daily")
+      setDeleted(d => ({ ...d, daily: d.daily.filter(t => t.id !== id) }));
+    if (type === "weekly")
+      setDeleted(d => ({ ...d, weekly: d.weekly.filter(t => t.id !== id) }));
+    if (type === "projects")
+      setDeleted(d => ({ ...d, projects: d.projects.filter(p => p.id !== id) }));
   };
 
-  /* ---------- Prompt modal ---------- */
-  const PromptModal=()=>{
-    const [val,setVal]=useState("");
-    useEffect(()=>{ if(prompt.open) setVal(""); },[prompt.open]);
-    if(!prompt.open) return null;
-    return(
+  /* ---------- prompt modal ---------- */
+  const Prompt = () =>
+    prompt.open ? (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
         <div className="bg-white p-6 w-80 rounded-xl shadow-lg flex flex-col gap-4">
           <label className="font-medium text-gray-700">{prompt.label}</label>
           <input
             autoFocus
-            className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={val}
-            onChange={e=>setVal(e.target.value)}
-            onKeyDown={e=>{
-              if(e.key==="Enter" && val.trim()){
-                prompt.onSubmit(val.trim()); closePrompt();
+            className="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+            onKeyDown={e => {
+              if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
+                prompt.onSubmit((e.target as HTMLInputElement).value.trim());
+                closePrompt();
               }
             }}
           />
           <div className="flex justify-end gap-2">
             <button
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
               onClick={closePrompt}
-            >Cancel</button>
-            <button
-              disabled={!val.trim()}
-              className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={()=>{ if(val.trim()){ prompt.onSubmit(val.trim());closePrompt(); } }}
-            >Add</button>
+            >
+              Cancel
+            </button>
           </div>
         </div>
+      </div>
+    ) : null;
+
+  /* ---------- views ---------- */
+  const ProjectsView = () => (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-bold">Projects</h2>
+        <button
+          className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={() => openPrompt("Add project", addProject)}
+        >
+          <Plus size={20} />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {projects.filter(p => !p.completed && !p.deleted).length === 0 && (
+          <div className="text-gray-400">No active projects</div>
+        )}
+        {projects
+          .filter(p => !p.completed && !p.deleted)
+          .map(p => {
+            const open = p.subtasks.filter(s => !s.done);
+            return (
+              <div
+                key={p.id}
+                className="bg-white border rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
+              >
+                <div className="flex items-center justify-between">
+                  <button
+                    className="text-lg font-semibold text-blue-700 hover:underline text-left"
+                    onClick={() => setView({ projectId: p.id })}
+                  >
+                    {p.title}
+                  </button>
+                  <button
+                    className="opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+                    onClick={() => delProject(p.id)}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+                <div className="text-sm">
+                  {open.length} open {open.length === 1 ? "subtask" : "subtasks"}
+                </div>
+                <ul className="flex flex-col gap-1">
+                  {open.slice(0, 3).map(s => (
+                    <li key={s.id} className="text-sm truncate">
+                      • {s.text}
+                    </li>
+                  ))}
+                  {open.length > 3 && (
+                    <li className="text-xs text-gray-400">
+                      +{open.length - 3} more
+                    </li>
+                  )}
+                </ul>
+                <button
+                  className="self-start px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
+                  onClick={() => completeProject(p.id)}
+                >
+                  Done
+                </button>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+
+  const ProjectDetailView = ({ projectId }: { projectId: string }) => {
+    const p = projects.find(p => p.id === projectId);
+    if (!p)
+      return (
+        <div className="p-6">
+          <button
+            onClick={() => setView("projects")}
+            className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 mb-4"
+          >
+            <ArrowLeft size={18} /> Back
+          </button>
+          <div className="text-gray-400">Project not found.</div>
+        </div>
+      );
+
+    return (
+      <div className="flex flex-col gap-6 p-6">
+        <button
+          onClick={() => setView("projects")}
+          className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+        >
+          <ArrowLeft size={18} /> Back
+        </button>
+        <h2 className="text-2xl font-bold">{p.title}</h2>
+
+        {/* subtasks */}
+        <section>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold">Subtasks</span>
+            <button
+              onClick={() => openPrompt("Add subtask", t => addSubtask(p.id, t))}
+              className="p-1 text-gray-400 hover:text-blue-600"
+            >
+              <Plus size={18} />
+            </button>
+            <button
+              onClick={() => addAISubtasks(p.id)}
+              className="p-1 text-gray-400 hover:text-purple-600"
+            >
+              <Wand2 size={18} />
+            </button>
+          </div>
+          <ul className="flex flex-col gap-1">
+            {p.subtasks.length === 0 && (
+              <li className="text-gray-400">No subtasks</li>
+            )}
+            {p.subtasks.map(s => (
+              <li key={s.id} className="flex items-center group hover:bg-gray-50 rounded px-1">
+                <input
+                  type="checkbox"
+                  checked={s.done}
+                  onChange={() => toggleSubtask(p.id, s.id)}
+                  className="mr-2 accent-blue-600"
+                />
+                <span className={`flex-1 text-sm ${s.done ? "line-through text-gray-400" : ""}`}>
+                  {s.text}
+                </span>
+                <button
+                  onClick={() => delSubtask(p.id, s.id)}
+                  className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* notes */}
+        <section>
+          <div className="font-semibold mb-1">Project Notes</div>
+          <textarea
+            value={p.notes}
+            onChange={e => setNotes(p.id, e.target.value)}
+            className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400"
+          />
+        </section>
       </div>
     );
   };
 
-  /* ---------- Sidebar ---------- */
-  const Sidebar=()=>(
+  const CompletedView = () => (
+    <div className="flex flex-col gap-6 p-6">
+      <button
+        onClick={() => setView("projects")}
+        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+      >
+        <ArrowLeft size={18} /> Back
+      </button>
+      <h2 className="text-2xl font-bold">Completed</h2>
+
+      {/* sections */}
+      {(["daily", "weekly", "projects"] as const).map(type => (
+        <section key={type}>
+          <div className="font-semibold mb-1 capitalize">{type}</div>
+          <ul className="flex flex-col gap-1">
+            {(completed as any)[type].length === 0 && (
+              <li className="text-gray-400 text-sm">Nothing</li>
+            )}
+            {(completed as any)[type].map((item: any) => (
+              <li key={item.id} className="flex items-center group hover:bg-gray-50 rounded px-1">
+                <span className="flex-1 text-sm line-through text-gray-400">
+                  {type === "projects" ? item.title : item.text}
+                </span>
+                <button
+                  onClick={() => undone(type, item.id)}
+                  className="ml-2 px-2 py-0.5 rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs"
+                >
+                  Undone
+                </button>
+                <button
+                  onClick={() => purge(type, item.id)}
+                  className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+
+  const DeletedView = () => (
+    <div className="flex flex-col gap-6 p-6">
+      <button
+        onClick={() => setView("projects")}
+        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+      >
+        <ArrowLeft size={18} /> Back
+      </button>
+      <h2 className="text-2xl font-bold">Trash</h2>
+
+      {(["daily", "weekly", "projects"] as const).map(type => (
+        <section key={type}>
+          <div className="font-semibold mb-1 capitalize">{type}</div>
+          <ul className="flex flex-col gap-1">
+            {(deleted as any)[type].length === 0 && (
+              <li className="text-gray-400 text-sm">Empty</li>
+            )}
+            {(deleted as any)[type].map((item: any) => (
+              <li key={item.id} className="flex items-center group hover:bg-gray-50 rounded px-1">
+                <span className="flex-1 text-sm line-through text-gray-400">
+                  {type === "projects" ? item.title : item.text}
+                </span>
+                <button
+                  onClick={() => restore(type, item.id)}
+                  className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
+                >
+                  Restore
+                </button>
+                <button
+                  onClick={() => purge(type, item.id)}
+                  className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+
+  const ReviewView = () => (
+    <div className="flex flex-col gap-6 p-6">
+      <button
+        onClick={() => setView("projects")}
+        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+      >
+        <ArrowLeft size={18} /> Back
+      </button>
+      <h2 className="text-2xl font-bold">Daily Review</h2>
+      <ul className="flex flex-col gap-4">
+        {history.length === 0 && <li className="text-gray-400">No entries</li>}
+        {history.map(h => (
+          <li key={h.date} className="bg-white border rounded-xl p-4">
+            <div className="font-semibold mb-2">
+              {new Date(h.date).toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })}
+            </div>
+            <ul className="flex flex-col gap-1">
+              {h.tasks.map((t, i) => (
+                <li key={i} className="text-sm line-through text-gray-400">
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  /* ---------- sidebar ---------- */
+  const Sidebar = () => (
     <aside className="w-80 h-screen bg-white border-r border-gray-200 p-4 flex flex-col gap-4">
-      {/* Date & New Day */}
       <div className="flex flex-col gap-2">
         <div className="text-lg font-bold">
-          {new Date().toLocaleDateString(undefined,{ weekday:"long",month:"short",day:"numeric" })}
+          {new Date().toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+          })}
         </div>
         <button
-          onClick={handleNewDay}
-          className="px-3 py-1 text-sm rounded bg-blue-600 hover:bg-blue-700 text-white"
-        >New Day</button>
+          onClick={newDay}
+          className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+        >
+          New Day
+        </button>
       </div>
 
-      {/* Daily tasks */}
+      {/* daily */}
       <section>
         <div className="flex items-center justify-between mb-1">
           <span className="font-semibold">Daily Tasks</span>
-          <button aria-label="Add" className="p-1 text-gray-400 hover:text-blue-600"
-            onClick={()=>openPrompt("Add daily task",handleAddDaily)}>
-            <Plus size={18}/>
+          <button
+            onClick={() => openPrompt("Add daily task", addDaily)}
+            className="p-1 text-gray-400 hover:text-blue-600"
+          >
+            <Plus size={18} />
           </button>
         </div>
         <ul className="flex flex-col gap-1">
-          {dailyTasks.length===0 && <li className="text-sm text-gray-400">No daily tasks</li>}
-          {dailyTasks.map(t=>(
+          {daily.length === 0 && <li className="text-gray-400 text-sm">None</li>}
+          {daily.map(t => (
             <li key={t.id} className="flex items-center group hover:bg-gray-50 rounded px-1">
-              <input type="checkbox" className="mr-2 accent-blue-600"
-                checked={t.done} onChange={()=>handleToggleDaily(t.id)}/>
-              <span className={`flex-1 text-sm ${t.done?"line-through text-gray-400":"text-gray-800"}`}>{t.text}</span>
-              <button aria-label="Delete" className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500 transition"
-                onClick={()=>handleDeleteDaily(t.id)}>
-                <Trash2 size={16}/>
+              <input
+                type="checkbox"
+                checked={t.done}
+                onChange={() => toggleDaily(t.id)}
+                className="mr-2 accent-blue-600"
+              />
+              <span className={`flex-1 text-sm ${t.done ? "line-through text-gray-400" : ""}`}>
+                {t.text}
+              </span>
+              <button
+                onClick={() => delDaily(t.id)}
+                className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+              >
+                <Trash2 size={16} />
               </button>
             </li>
           ))}
         </ul>
       </section>
 
-      {/* Weekly tasks */}
+      {/* weekly */}
       <section>
         <div className="flex items-center justify-between mb-1">
           <span className="font-semibold">Weekly Tracker</span>
-          <button aria-label="Add" className="p-1 text-gray-400 hover:text-blue-600"
-            onClick={()=>openPrompt("Add weekly task",handleAddWeekly)}>
-            <Plus size={18}/>
+          <button
+            onClick={() => openPrompt("Add weekly task", addWeekly)}
+            className="p-1 text-gray-400 hover:text-blue-600"
+          >
+            <Plus size={18} />
           </button>
         </div>
         <ul className="flex flex-col gap-1">
-          {weeklyTasks.length===0 && <li className="text-sm text-gray-400">No weekly tasks</li>}
-          {weeklyTasks.map(t=>(
+          {weekly.length === 0 && <li className="text-gray-400 text-sm">None</li>}
+          {weekly.map(t => (
             <li key={t.id} className="flex items-center group hover:bg-gray-50 rounded px-1">
               <span className="flex-1 text-sm">{t.text}</span>
-              <span className="text-xs text-gray-400 ml-2">Last: {t.lastCompleted?`${daysAgo(t.lastCompleted)}d ago`:"never"}</span>
-              <button className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
-                onClick={()=>handleCompleteWeekly(t.id)}>Done</button>
-              <button aria-label="Delete" className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500 transition"
-                onClick={()=>handleDeleteWeekly(t.id)}>
-                <Trash2 size={16}/>
+              <span className="text-xs text-gray-400 ml-2">
+                Last: {t.lastCompleted ? `${daysAgo(t.lastCompleted)}d ago` : "never"}
+              </span>
+              <button
+                onClick={() => completeWeekly(t.id)}
+                className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
+              >
+                Done
+              </button>
+              <button
+                onClick={() => delWeekly(t.id)}
+                className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
+              >
+                <Trash2 size={16} />
               </button>
             </li>
           ))}
         </ul>
       </section>
 
-      {/* Scratchpad */}
+      {/* scratchpad */}
       <section>
         <div className="font-semibold mb-1">Scratchpad</div>
         <textarea
+          value={scratch}
+          onChange={changeScratch}
           placeholder="Quick notes..."
-          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={scratchpad} onChange={handleScratchChange}
+          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400"
         />
       </section>
 
-      {/* Navigation */}
+      {/* nav */}
       <div className="mt-auto flex flex-col gap-2">
-        <button onClick={()=>setView("completed")} className="text-left px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
-          View Completed Tasks</button>
-        <button onClick={()=>setView("deleted")}   className="text-left px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
-          View Deleted Tasks</button>
-        <button onClick={()=>setView("dailyReview")} className="text-left px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
-          View Daily Review</button>
+        <button
+          onClick={() => setView("completed")}
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
+        >
+          View Completed
+        </button>
+        <button
+          onClick={() => setView("deleted")}
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
+        >
+          View Deleted
+        </button>
+        <button
+          onClick={() => setView("review")}
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
+        >
+          View Daily Review
+        </button>
       </div>
     </aside>
   );
 
-  /* ---------- (Projects, Detail, Completed, Deleted, Review views) ---------- */
-  /* -- These match functionality from your original file; unchanged except for debounce above -- */
-  /* -- Full definitions omitted here strictly for brevity; they remain identical to your original code. -- */
+  /* ---------- main switch ---------- */
+  let Main: React.ReactNode;
+  if (view === "projects") Main = <ProjectsView />;
+  else if (view === "completed") Main = <CompletedView />;
+  else if (view === "deleted") Main = <DeletedView />;
+  else if (view === "review") Main = <ReviewView />;
+  else Main = <ProjectDetailView projectId={view.projectId} />;
 
-  /* ---------- Main Switch ---------- */
-  let MainContent:React.ReactNode;
-  if(view==="projects")      MainContent=<ProjectsView/>;
-  else if(view==="completed")MainContent=<CompletedTasksView/>;
-  else if(view==="deleted")  MainContent=<DeletedTasksView/>;
-  else if(view==="dailyReview")MainContent=<DailyReviewView/>;
-  else if(typeof view==="object"&&"projectId" in view) MainContent=<ProjectDetailView projectId={view.projectId}/>;
-
-  /* ---------- Render ---------- */
+  /* ---------- render ---------- */
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar/>
-      <main className="flex-1 overflow-y-auto">{MainContent}</main>
-      <PromptModal/>
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">{Main}</main>
+      <Prompt />
     </div>
   );
 };
