@@ -20,14 +20,14 @@ const dailySlice = createSlice({
     addDaily: (state, action: PayloadAction<string>) => {
       state.daily.push({ id: uuid(), text: action.payload, done: false });
     },
-    toggleDaily: (state, action: PayloadAction<string>) => {
-      const task = state.daily.find(t => t.id === action.payload);
+    toggleDaily: (state, action: PayloadAction<Task>) => {
+      const task = state.daily.find(t => t.id === action.payload.id);
       if (task) {
         task.done = !task.done;
       }
     },
-    delDaily: (state, action: PayloadAction<string>) => {
-      state.daily = state.daily.filter(t => t.id !== action.payload);
+    delDaily: (state, action: PayloadAction<Task>) => {
+      state.daily = state.daily.filter(t => t.id !== action.payload.id);
     },
   },
 });

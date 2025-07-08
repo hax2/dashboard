@@ -1,1 +1,1 @@
-fix: dark mode prompt and default tasks
+fix: default tasks and clickable project cards
