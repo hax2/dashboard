@@ -10,6 +10,9 @@ const initialState: WeeklyState = {
   weekly: [
     { id: uuid(), text: "do laundry", lastCompleted: null },
     { id: uuid(), text: "vacuum", lastCompleted: null },
+    { id: uuid(), text: "take out trash", lastCompleted: null },
+    { id: uuid(), text: "clean bathroom", lastCompleted: null },
+    { id: uuid(), text: "water plants", lastCompleted: null },
   ],
 };
 

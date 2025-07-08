@@ -10,6 +10,8 @@ const initialState: DailyState = {
   daily: [
     { id: uuid(), text: "work out", done: false },
     { id: uuid(), text: "go for a walk", done: false },
+    { id: uuid(), text: "check emails", done: false },
+    { id: uuid(), text: "drink 2l of water", done: false },
   ],
 };
 

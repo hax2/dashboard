@@ -32,11 +32,11 @@ export const Prompt: React.FC<PromptProps> = ({
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/30 ${className}`}>
-      <div className="bg-white p-6 w-80 rounded-xl shadow-lg flex flex-col gap-4">
-        <label className="font-medium text-gray-700">{label}</label>
+      <div className="bg-white dark:bg-gray-800 p-6 w-80 rounded-xl shadow-lg flex flex-col gap-4">
+        <label className="font-medium text-gray-700 dark:text-gray-200">{label}</label>
         <input
           autoFocus
-          className="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+          className="border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none dark:bg-gray-700 dark:text-white"
           value={val}
           onChange={(e) => setVal(e.target.value)}
           onKeyDown={(e) => {
@@ -47,7 +47,7 @@ export const Prompt: React.FC<PromptProps> = ({
         />
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:text-white"
             onClick={onClose}
           >
             Cancel
