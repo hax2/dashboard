@@ -2,13 +2,13 @@ import { todayISO } from "./utils";
 import { Project, Task, WeeklyTask, DailyHistoryEntry } from "../types";
 
 export const STORAGE = {
-  daily: "samer-daily-tasks",
-  weekly: "samer-weekly-tasks",
-  projects: "samer-projects",
-  scratch: "samer-scratchpad",
-  completed: "samer-completed",
-  deleted: "samer-deleted",
-  history: "samer-daily-history",
+  daily: "samer-daily-tasks-v2",
+  weekly: "samer-weekly-tasks-v2",
+  projects: "samer-projects-v2",
+  scratch: "samer-scratchpad-v2",
+  completed: "samer-completed-v2",
+  deleted: "samer-deleted-v2",
+  history: "samer-daily-history-v2",
 } as const;
 
 export const STORAGE_KEYS = Object.values(STORAGE);

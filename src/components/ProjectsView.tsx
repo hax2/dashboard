@@ -47,11 +47,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     const open = project.subtasks.filter((s) => !s.done);
     return (
         <div
-            className="bg-white dark:bg-dark-surface border dark:border-gray-700 rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
+            onClick={() => dispatch(setView({ projectId: project.id }))}
+            className="bg-white dark:bg-dark-surface border dark:border-gray-700 rounded-xl p-4 flex flex-col gap-2 shadow-sm group cursor-pointer hover:shadow-md"
         >
             <div className="flex items-center justify-between">
                 <button
-                    onClick={() => dispatch(setView({ projectId: project.id }))}
                     className="text-lg font-semibold text-blue-700 hover:underline text-left"
                 >
                     {project.title}
