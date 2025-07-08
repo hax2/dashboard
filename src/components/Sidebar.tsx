@@ -8,11 +8,11 @@ import { RootState } from "../store";
 import { setView } from "../store/slices/viewSlice";
 import { openPrompt } from "../store/slices/promptSlice";
 import { newDay } from "../store/slices/historySlice";
-import { addDaily, toggleDaily, delDaily } from "../store/slices/dailySlice";
+import { addDaily, toggleDaily, delDaily, resetDaily } from "../store/slices/dailySlice";
 import { addWeekly, completeWeekly, delWeekly } from "../store/slices/weeklySlice";
 import { setScratch } from "../store/slices/scratchSlice";
 import { addCompletedDaily } from "../store/slices/completedSlice";
-import { addDeletedDaily, addDeletedWeekly } from "../store/slices/deletedSlice";
+
 
 export const Sidebar: React.FC = () => {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ export const Sidebar: React.FC = () => {
       dispatch(newDay(doneDailyTasks));
       daily.filter((t) => t.done).forEach((t) => dispatch(addCompletedDaily(t)));
     }
-    daily.forEach((t) => dispatch(toggleDaily(t.id))); // Reset daily tasks to undone
+    dispatch(resetDaily());
   };
 
   const handleDelDaily = (id: string) => {

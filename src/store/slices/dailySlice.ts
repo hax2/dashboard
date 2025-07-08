@@ -35,8 +35,13 @@ const dailySlice = createSlice({
         task.deleted = false;
       }
     },
+    resetDaily: (state) => {
+      state.daily.forEach(task => {
+        task.done = false;
+      });
+    },
   },
 });
 
-export const { addDaily, toggleDaily, delDaily, restoreDaily } = dailySlice.actions;
+export const { addDaily, toggleDaily, delDaily, restoreDaily, resetDaily } = dailySlice.actions;
 export default dailySlice.reducer;
