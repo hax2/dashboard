@@ -23,13 +23,13 @@ export const localStorageMiddleware: Middleware<{}, RootState> =
     const state = getState();
 
     try {
-      localStorage.setItem(STORAGE.daily, JSON.stringify(state.daily.daily));
-      localStorage.setItem(STORAGE.weekly, JSON.stringify(state.weekly.weekly));
-      localStorage.setItem(STORAGE.projects, JSON.stringify(state.projects.projects));
-      localStorage.setItem(STORAGE.scratch, JSON.stringify(state.scratch.scratch));
-      localStorage.setItem(STORAGE.completed, JSON.stringify(state.completed));
-      localStorage.setItem(STORAGE.deleted, JSON.stringify(state.deleted));
-      localStorage.setItem(STORAGE.history, JSON.stringify(state.history.history));
+      localStorage.setItem(STORAGE.daily, JSON.stringify(state.daily.daily || []));
+      localStorage.setItem(STORAGE.weekly, JSON.stringify(state.weekly.weekly || []));
+      localStorage.setItem(STORAGE.projects, JSON.stringify(state.projects.projects || []));
+      localStorage.setItem(STORAGE.scratch, JSON.stringify(state.scratch.scratch || []));
+      localStorage.setItem(STORAGE.completed, JSON.stringify(state.completed || []));
+      localStorage.setItem(STORAGE.deleted, JSON.stringify(state.deleted || []));
+      localStorage.setItem(STORAGE.history, JSON.stringify(state.history.history || []));
     } catch (e) {
       console.warn("Could not save state to localStorage", e);
     }
