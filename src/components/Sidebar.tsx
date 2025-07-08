@@ -1,7 +1,18 @@
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Moon, Sun, Plus, Trash2 } from "lucide-react";
 import { useDarkMode } from "../hooks/useDarkMode";
 import { daysAgo } from "../lib/utils";
 import { exportAllData, importAllData } from "../lib/storage";
+import { RootState } from "../store";
+import { setView } from "../store/slices/viewSlice";
+import { openPrompt } from "../store/slices/promptSlice";
+import { newDay } from "../store/slices/historySlice";
+import { addDaily, toggleDaily, delDaily } from "../store/slices/dailySlice";
+import { addWeekly, completeWeekly, delWeekly } from "../store/slices/weeklySlice";
+import { setScratch } from "../store/slices/scratchSlice";
+import { addCompletedDaily } from "../store/slices/completedSlice";
+import { addDeletedDaily, addDeletedWeekly } from "../store/slices/deletedSlice";
 
 export const Sidebar: React.FC = () => {
   const dispatch = useDispatch();
