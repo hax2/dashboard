@@ -213,5 +213,4 @@ export const Sidebar: React.FC = () => {
       </div>
     </aside>
   );
-};
-};
+}
