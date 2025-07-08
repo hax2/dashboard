@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Project, Task, WeeklyTask } from '../../types';
-import { delDaily } from './dailySlice';
-import { delWeekly } from './weeklySlice';
 
 interface DeletedState {
   daily: Task[];
@@ -39,22 +37,19 @@ const deletedSlice = createSlice({
         state.projects = state.projects.filter(p => p.id !== id);
       }
     },
+    addDeletedDaily: (state, action: PayloadAction<Task>) => {
+      state.daily.unshift(action.payload);
+    },
+    addDeletedWeekly: (state, action: PayloadAction<WeeklyTask>) => {
+      state.weekly.unshift(action.payload);
+    },
     addDeletedProject: (state, action: PayloadAction<Project>) => {
       console.log("Adding deleted project:", action.payload);
       state.projects.unshift(action.payload);
       console.log("Deleted projects after add:", state.projects);
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(delDaily, (state, action) => {
-        state.daily.unshift(action.payload);
-      })
-      .addCase(delWeekly, (state, action) => {
-        state.weekly.unshift(action.payload);
-      });
-  },
 });
 
-export const { restore, purge, addDeletedProject } = deletedSlice.actions;
+export const { restore, purge, addDeletedDaily, addDeletedWeekly, addDeletedProject } = deletedSlice.actions;
 export default deletedSlice.reducer;

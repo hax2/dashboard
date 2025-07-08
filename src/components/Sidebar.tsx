@@ -35,7 +35,23 @@ export const Sidebar: React.FC = () => {
       dispatch(newDay(doneDailyTasks));
       daily.filter((t) => t.done).forEach((t) => dispatch(addCompletedDaily(t)));
     }
-    daily.forEach((t) => dispatch(toggleDaily(t))); // Reset daily tasks to undone
+    daily.forEach((t) => dispatch(toggleDaily(t.id))); // Reset daily tasks to undone
+  };
+
+  const handleDelDaily = (id: string) => {
+    const taskToDelete = daily.find((t) => t.id === id);
+    if (taskToDelete) {
+      dispatch(delDaily(id));
+      dispatch(addDeletedDaily(taskToDelete));
+    }
+  };
+
+  const handleDelWeekly = (id: string) => {
+    const taskToDelete = weekly.find((t) => t.id === id);
+    if (taskToDelete) {
+      dispatch(delWeekly(id));
+      dispatch(addDeletedWeekly(taskToDelete));
+    }
   };
 
   return (
@@ -80,7 +96,7 @@ export const Sidebar: React.FC = () => {
               <input
                 type="checkbox"
                 checked={t.done}
-                onChange={() => dispatch(toggleDaily(t))}
+                onChange={() => dispatch(toggleDaily(t.id))}
                 className="mr-2 accent-blue-600"
               />
               <span
@@ -91,7 +107,7 @@ export const Sidebar: React.FC = () => {
                 {t.text}
               </span>
               <button
-                onClick={() => dispatch(delDaily(t))}
+                onClick={() => handleDelDaily(t.id)}
                 className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
               >
                 <Trash2 size={16} />
@@ -127,13 +143,13 @@ export const Sidebar: React.FC = () => {
                 {t.lastCompleted ? `${daysAgo(t.lastCompleted)}d ago` : "never"}
               </span>
               <button
-                onClick={() => dispatch(completeWeekly(t))}
+                onClick={() => dispatch(completeWeekly(t.id))}
                 className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
               >
                 Done
               </button>
               <button
-                onClick={() => dispatch(delWeekly(t))}
+                onClick={() => handleDelWeekly(t.id)}
                 className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
               >
                 <Trash2 size={16} />

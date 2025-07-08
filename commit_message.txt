@@ -1,1 +1,1 @@
-fix: default tasks and clickable project cards
+feat: track completed and deleted daily/weekly tasks

@@ -20,14 +20,14 @@ const weeklySlice = createSlice({
     addWeekly: (state, action: PayloadAction<string>) => {
       state.weekly.push({ id: uuid(), text: action.payload, lastCompleted: null });
     },
-    completeWeekly: (state, action: PayloadAction<WeeklyTask>) => {
-      const task = state.weekly.find(t => t.id === action.payload.id);
+    completeWeekly: (state, action: PayloadAction<string>) => {
+      const task = state.weekly.find(t => t.id === action.payload);
       if (task) {
         task.lastCompleted = todayISO();
       }
     },
-    delWeekly: (state, action: PayloadAction<WeeklyTask>) => {
-      state.weekly = state.weekly.filter(t => t.id !== action.payload.id);
+    delWeekly: (state, action: PayloadAction<string>) => {
+      state.weekly = state.weekly.filter(t => t.id !== action.payload);
     },
   },
 });

@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Project, Task, WeeklyTask } from '../../types';
-import { delDaily, toggleDaily } from './dailySlice';
-import { completeWeekly } from './weeklySlice';
 
 interface CompletedState {
   daily: Task[];
@@ -29,27 +27,19 @@ const completedSlice = createSlice({
         state.projects = state.projects.filter(p => p.id !== id);
       }
     },
+    addCompletedDaily: (state, action: PayloadAction<Task>) => {
+      state.daily.unshift(action.payload);
+    },
+    addCompletedWeekly: (state, action: PayloadAction<WeeklyTask>) => {
+      state.weekly.unshift(action.payload);
+    },
     addCompletedProject: (state, action: PayloadAction<Project>) => {
       console.log("Adding completed project:", action.payload);
       state.projects.unshift(action.payload);
       console.log("Completed projects after add:", state.projects);
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(toggleDaily, (state, action) => {
-        const task = action.payload;
-        if (task.done) {
-          state.daily.unshift(task);
-        } else {
-          state.daily = state.daily.filter(t => t.id !== task.id);
-        }
-      })
-      .addCase(completeWeekly, (state, action) => {
-        state.weekly.unshift(action.payload);
-      });
-  },
 });
 
-export const { undone, addCompletedProject } = completedSlice.actions;
+export const { undone, addCompletedDaily, addCompletedWeekly, addCompletedProject } = completedSlice.actions;
 export default completedSlice.reducer;
