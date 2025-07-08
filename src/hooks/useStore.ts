@@ -5,7 +5,7 @@ import {
   WeeklyTask,
   DailyHistoryEntry,
 } from "../types";
-import { loadState, saveState, STORAGE } from "./storage";
+import { loadState, saveState, STORAGE } from "../lib/storage";
 import { todayISO, uuid } from "./utils";
 
 export const useStore = () => {
