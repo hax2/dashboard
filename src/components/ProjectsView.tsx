@@ -1,4 +1,4 @@
-import React from "react";
+import { motion } from "framer-motion";
 import { Plus, Trash2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
@@ -29,7 +29,9 @@ export const ProjectsView: React.FC = () => {
         {projects
           .filter((p) => !p.completed && !p.deleted)
           .map((p) => (
-            <ProjectCard key={p.id} project={p} />
+            <motion.div layoutId={`project-${p.id}`} key={p.id}>
+              <ProjectCard project={p} />
+            </motion.div>
           ))}
       </div>
     </div>

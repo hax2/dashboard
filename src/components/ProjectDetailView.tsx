@@ -1,4 +1,4 @@
-import React from "react";
+import { motion } from "framer-motion";
 import { ArrowLeft, Plus, Trash2, Wand2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
@@ -22,7 +22,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
       <div className="p-6">
         <button
           onClick={() => dispatch(setView("projects"))}
-          className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 mb-4"
+          className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 mb-4"
         >
           <ArrowLeft size={18} /> Back
         </button>
@@ -31,10 +31,10 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
     );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <motion.div layoutId={`project-${p.id}`} className="flex flex-col gap-6 p-6 bg-white dark:bg-gray-800 rounded-xl">
       <button
         onClick={() => dispatch(setView("projects"))}
-        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 w-fit"
       >
         <ArrowLeft size={18} /> Back
       </button>
@@ -71,7 +71,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
           {p.subtasks.map((s) => (
             <li
               key={s.id}
-              className="flex items-center group hover:bg-gray-50 rounded px-1"
+              className="flex items-center group hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-1"
             >
               <input
                 type="checkbox"
@@ -103,9 +103,9 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
         <textarea
           value={p.notes}
           onChange={(e) => dispatch(setNotes({ projectId: p.id, notes: e.target.value }))}
-          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400"
+          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 bg-white dark:bg-gray-700 dark:border-gray-600"
         />
       </section>
-    </div>
+    </motion.div>
   );
 };
