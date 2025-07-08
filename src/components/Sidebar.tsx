@@ -55,7 +55,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-80 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4">
+    <aside className="w-80 h-screen bg-white dark:bg-dark-surface border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4">
       {/* Date and New-Day button */}
       <div className="flex flex-col gap-2">
         <div className="text-lg font-bold">
@@ -91,7 +91,7 @@ export const Sidebar: React.FC = () => {
           {daily.map((t) => (
             <li
               key={t.id}
-              className="flex items-center group hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-1"
+              className="flex items-center group hover:bg-gray-50 dark:hover:bg-dark-background rounded px-1"
             >
               <input
                 type="checkbox"
@@ -135,7 +135,7 @@ export const Sidebar: React.FC = () => {
           {weekly.map((t) => (
             <li
               key={t.id}
-              className="flex items-center group hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-1"
+              className="flex items-center group hover:bg-gray-50 dark:hover:bg-dark-background rounded px-1"
             >
               <span className="flex-1 text-sm">{t.text}</span>
               <span className="text-xs text-gray-400 ml-2">
@@ -166,7 +166,7 @@ export const Sidebar: React.FC = () => {
           placeholder="Quick notes..."
           value={scratch}
           onChange={(e) => dispatch(setScratch(e.target.value))}
-          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+          className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 bg-white dark:bg-dark-surface dark:border-gray-600"
         />
       </section>
 
@@ -174,31 +174,31 @@ export const Sidebar: React.FC = () => {
       <div className="mt-auto flex flex-col gap-2">
         <button
           onClick={() => dispatch(setView("completed"))}
-          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm"
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background text-sm"
         >
           View Completed
         </button>
         <button
           onClick={() => dispatch(setView("deleted"))}
-          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm"
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background text-sm"
         >
           View Deleted
         </button>
         <button
           onClick={() => dispatch(setView("review"))}
-          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm"
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background text-sm"
         >
           View Daily Review
         </button>
         <button
           onClick={exportAllData}
-          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm"
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background text-sm"
         >
           Export Data
         </button>
         <button
           onClick={triggerImport}
-          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm"
+          className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background text-sm"
         >
           Import Data
         </button>
@@ -211,7 +211,7 @@ export const Sidebar: React.FC = () => {
         />
         <button
           onClick={toggleDarkMode}
-          className="mt-2 p-2 rounded-full bg-gray-200 dark:bg-gray-700 self-center"
+          className="mt-2 p-2 rounded-full bg-gray-200 dark:bg-dark-background self-center"
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>

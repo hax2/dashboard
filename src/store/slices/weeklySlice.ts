@@ -7,7 +7,10 @@ interface WeeklyState {
 }
 
 const initialState: WeeklyState = {
-  weekly: [],
+  weekly: [
+    { id: uuid(), text: "do laundry", lastCompleted: null },
+    { id: uuid(), text: "vacuum", lastCompleted: null },
+  ],
 };
 
 const weeklySlice = createSlice({

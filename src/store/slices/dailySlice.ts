@@ -7,7 +7,10 @@ interface DailyState {
 }
 
 const initialState: DailyState = {
-  daily: [],
+  daily: [
+    { id: uuid(), text: "work out", done: false },
+    { id: uuid(), text: "go for a walk", done: false },
+  ],
 };
 
 const dailySlice = createSlice({

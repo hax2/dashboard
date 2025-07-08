@@ -27,7 +27,7 @@ const SamerDashboard: React.FC = () => {
   else Main = <ProjectDetailView projectId={view.projectId} />;
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-dark-background text-gray-800 dark:text-dark-onBackground">
       <Sidebar />
       <main className="flex-1 overflow-y-auto">
         <AnimatePresence>

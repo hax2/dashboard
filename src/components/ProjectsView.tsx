@@ -47,7 +47,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     const open = project.subtasks.filter((s) => !s.done);
     return (
         <div
-            className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
+            className="bg-white dark:bg-dark-surface border dark:border-gray-700 rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
         >
             <div className="flex items-center justify-between">
                 <button
@@ -68,8 +68,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             <div className="text-sm">{open.length} open subtasks</div>
             <ul className="flex flex-col gap-1">
                 {open.slice(0, 3).map((s) => (
-                    <li key={s.id} className="text-sm truncate">
-                        • {s.text}
+                    <li key={s.id} className="flex items-center text-sm truncate">
+                        <input type="checkbox" disabled className="mr-2" />
+                        {s.text}
                     </li>
                 ))}
                 {open.length > 3 && (
