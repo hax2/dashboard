@@ -209,21 +209,9 @@ export const Sidebar: React.FC = () => {
           onChange={handleFile}
           className="hidden"
         />
-        <div className="flex justify-center gap-2 mt-2">
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full bg-gray-200 dark:bg-dark-background"
-          >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          <button
-            onClick={() => dispatch(toggleSidebar())}
-            className="p-2 rounded-full bg-gray-200 dark:bg-dark-background"
-          >
-            {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
-          </button>
-        </div>
+        </button>
       </div>
     </aside>
   );
+};
 };
