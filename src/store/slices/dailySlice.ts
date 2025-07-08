@@ -27,10 +27,7 @@ const dailySlice = createSlice({
       }
     },
     delDaily: (state, action: PayloadAction<string>) => {
-      const task = state.daily.find(t => t.id === action.payload);
-      if (task) {
-        task.deleted = true;
-      }
+      state.daily = state.daily.filter(t => t.id !== action.payload);
     },
     restoreDaily: (state, action: PayloadAction<string>) => {
       const task = state.daily.find(t => t.id === action.payload);

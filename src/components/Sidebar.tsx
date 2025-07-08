@@ -88,7 +88,7 @@ export const Sidebar: React.FC = () => {
           {daily.length === 0 && (
             <li className="text-gray-400 text-sm">None</li>
           )}
-          {daily.map((t) => (
+          {daily.filter(t => !t.deleted).map((t) => (
             <li
               key={t.id}
               className="flex items-center group hover:bg-gray-50 dark:hover:bg-dark-background rounded px-1"
@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
           {weekly.length === 0 && (
             <li className="text-gray-400 text-sm">None</li>
           )}
-          {weekly.map((t) => (
+          {weekly.filter(t => !t.deleted).map((t) => (
             <li
               key={t.id}
               className="flex items-center group hover:bg-gray-50 dark:hover:bg-dark-background rounded px-1"
