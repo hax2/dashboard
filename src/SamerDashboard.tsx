@@ -9,6 +9,7 @@ import { ReviewView } from "./components/ReviewView";
 import { Prompt } from "./components/Prompt";
 
 const SamerDashboard: React.FC = () => {
+  console.log("SamerDashboard rendered");
   const { view, prompt, openPrompt, closePrompt } = useStore();
 
   let Main: React.ReactNode;
