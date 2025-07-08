@@ -42,7 +42,6 @@ export const Sidebar: React.FC = () => {
     const taskToDelete = daily.find((t) => t.id === id);
     if (taskToDelete) {
       dispatch(delDaily(id));
-      dispatch(addDeletedDaily(taskToDelete));
     }
   };
 
@@ -50,7 +49,6 @@ export const Sidebar: React.FC = () => {
     const taskToDelete = weekly.find((t) => t.id === id);
     if (taskToDelete) {
       dispatch(delWeekly(id));
-      dispatch(addDeletedWeekly(taskToDelete));
     }
   };
 
