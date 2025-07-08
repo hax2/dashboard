@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { openPrompt as openPromptAction, closePrompt as closePromptAction } from "../store/slices/promptSlice";
-import { setView as setViewAction } from "../store/slices/viewSlice";
+import { RootState } from "./store";
+import { openPrompt as openPromptAction, closePrompt as closePromptAction } from "./store/slices/promptSlice";
+import { setView as setViewAction } from "./store/slices/viewSlice";
 import { Sidebar } from "./components/Sidebar";
 import { ProjectsView } from "./components/ProjectsView";
 import { ProjectDetailView } from "./components/ProjectDetailView";
