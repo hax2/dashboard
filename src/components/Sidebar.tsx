@@ -1,31 +1,55 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { useStore } from "../hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { setView } from "../store/slices/viewSlice";
+import { openPrompt } from "../store/slices/promptSlice";
+import { newDay } from "../store/slices/historySlice";
+import { addDaily, toggleDaily, delDaily } from "../store/slices/dailySlice";
+import { addWeekly, completeWeekly, delWeekly } from "../store/slices/weeklySlice";
+import { setScratch } from "../store/slices/scratchSlice";
+import { addCompletedDaily } from "../store/slices/completedSlice";
+import { addDeletedDaily, addDeletedWeekly, addDeletedProject } from "../store/slices/deletedSlice";
 import { daysAgo } from "../lib/utils";
 import { exportAllData, importAllData } from "../lib/storage";
 
 export const Sidebar: React.FC = () => {
-  const {
-    daily,
-    weekly,
-    scratch,
-    setScratch,
-    setView,
-    openPrompt,
-    newDay,
-    addDaily,
-    toggleDaily,
-    delDaily,
-    addWeekly,
-    completeWeekly,
-    delWeekly,
-  } = useStore();
+  const dispatch = useDispatch();
+  const daily = useSelector((state: RootState) => state.daily.daily);
+  const weekly = useSelector((state: RootState) => state.weekly.weekly);
+  const scratch = useSelector((state: RootState) => state.scratch.scratch);
+  const view = useSelector((state: RootState) => state.view.currentView);
 
   const fileRef = React.useRef<HTMLInputElement>(null);
   const triggerImport = () => fileRef.current?.click();
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) importAllData(f);
+  };
+
+  const handleNewDay = () => {
+    const doneDailyTasks = daily.filter((t) => t.done).map((t) => t.text);
+    if (doneDailyTasks.length) {
+      dispatch(newDay(doneDailyTasks));
+      daily.filter((t) => t.done).forEach((t) => dispatch(addCompletedDaily(t)));
+    }
+    daily.forEach((t) => dispatch(toggleDaily(t.id))); // Reset daily tasks to undone
+  };
+
+  const handleDelDaily = (id: string) => {
+    const taskToDelete = daily.find((t) => t.id === id);
+    if (taskToDelete) {
+      dispatch(delDaily(id));
+      dispatch(addDeletedDaily(taskToDelete));
+    }
+  };
+
+  const handleDelWeekly = (id: string) => {
+    const taskToDelete = weekly.find((t) => t.id === id);
+    if (taskToDelete) {
+      dispatch(delWeekly(id));
+      dispatch(addDeletedWeekly(taskToDelete));
+    }
   };
 
   return (
@@ -40,7 +64,7 @@ export const Sidebar: React.FC = () => {
           })}
         </div>
         <button
-          onClick={newDay}
+          onClick={handleNewDay}
           className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
         >
           New Day
@@ -52,7 +76,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between mb-1">
           <span className="font-semibold">Daily Tasks</span>
           <button
-            onClick={() => openPrompt("Add daily task", addDaily)}
+            onClick={() => dispatch(openPrompt({ label: "Add daily task", onSubmit: (text) => dispatch(addDaily(text)) }))}
             className="p-1 text-gray-400 hover:text-blue-600"
           >
             <Plus size={18} />
@@ -70,7 +94,7 @@ export const Sidebar: React.FC = () => {
               <input
                 type="checkbox"
                 checked={t.done}
-                onChange={() => toggleDaily(t.id)}
+                onChange={() => dispatch(toggleDaily(t.id))}
                 className="mr-2 accent-blue-600"
               />
               <span
@@ -81,7 +105,7 @@ export const Sidebar: React.FC = () => {
                 {t.text}
               </span>
               <button
-                onClick={() => delDaily(t.id)}
+                onClick={() => handleDelDaily(t.id)}
                 className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
               >
                 <Trash2 size={16} />
@@ -96,7 +120,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between mb-1">
           <span className="font-semibold">Weekly Tracker</span>
           <button
-            onClick={() => openPrompt("Add weekly task", addWeekly)}
+            onClick={() => dispatch(openPrompt({ label: "Add weekly task", onSubmit: (text) => dispatch(addWeekly(text)) }))}
             className="p-1 text-gray-400 hover:text-blue-600"
           >
             <Plus size={18} />
@@ -117,13 +141,13 @@ export const Sidebar: React.FC = () => {
                 {t.lastCompleted ? `${daysAgo(t.lastCompleted)}d ago` : "never"}
               </span>
               <button
-                onClick={() => completeWeekly(t.id)}
+                onClick={() => dispatch(completeWeekly(t.id))}
                 className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
               >
                 Done
               </button>
               <button
-                onClick={() => delWeekly(t.id)}
+                onClick={() => handleDelWeekly(t.id)}
                 className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
               >
                 <Trash2 size={16} />
@@ -139,7 +163,7 @@ export const Sidebar: React.FC = () => {
         <textarea
           placeholder="Quick notes..."
           value={scratch}
-          onChange={(e) => setScratch(e.target.value)}
+          onChange={(e) => dispatch(setScratch(e.target.value))}
           className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400"
         />
       </section>
@@ -147,19 +171,19 @@ export const Sidebar: React.FC = () => {
       {/* Nav buttons */}
       <div className="mt-auto flex flex-col gap-2">
         <button
-          onClick={() => setView("completed")}
+          onClick={() => dispatch(setView("completed"))}
           className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
         >
           View Completed
         </button>
         <button
-          onClick={() => setView("deleted")}
+          onClick={() => dispatch(setView("deleted"))}
           className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
         >
           View Deleted
         </button>
         <button
-          onClick={() => setView("review")}
+          onClick={() => dispatch(setView("review"))}
           className="text-left px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm"
         >
           View Daily Review

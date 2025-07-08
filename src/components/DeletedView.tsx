@@ -1,14 +1,32 @@
 import React from "react";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import { useStore } from "../hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { restore, purge } from "../store/slices/deletedSlice";
+import { addDaily } from "../store/slices/dailySlice";
+import { addWeekly } from "../store/slices/weeklySlice";
+import { addProject } from "../store/slices/projectsSlice";
+import { setView } from "../store/slices/viewSlice";
 
 export const DeletedView: React.FC = () => {
-  const { deleted, setView, restore, purge } = useStore();
+  const dispatch = useDispatch();
+  const deleted = useSelector((state: RootState) => state.deleted);
+
+  const handleRestore = (type: "daily" | "weekly" | "projects", item: any) => {
+    dispatch(restore({ type, item }));
+    if (type === "daily") {
+      dispatch(addDaily(item.text));
+    } else if (type === "weekly") {
+      dispatch(addWeekly(item.text));
+    } else if (type === "projects") {
+      dispatch(addProject(item.title));
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <button
-        onClick={() => setView("projects")}
+        onClick={() => dispatch(setView("projects"))}
         className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
       >
         <ArrowLeft size={18} /> Back
@@ -31,13 +49,13 @@ export const DeletedView: React.FC = () => {
                   {type === "projects" ? item.title : item.text}
                 </span>
                 <button
-                  onClick={() => restore(type, item.id)}
+                  onClick={() => handleRestore(type, item)}
                   className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
                 >
                   Restore
                 </button>
                 <button
-                  onClick={() => purge(type, item.id)}
+                  onClick={() => dispatch(purge({ type, id: item.id }))}
                   className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
                 >
                   <Trash2 size={16} />

@@ -1,25 +1,27 @@
 import React from "react";
 import { ArrowLeft, Plus, Trash2, Wand2 } from "lucide-react";
-import { useStore } from "../hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { openPrompt } from "../store/slices/promptSlice";
+import { setView } from "../store/slices/viewSlice";
+import {
+  addSubtask,
+  toggleSubtask,
+  delSubtask,
+  addAISubtasks,
+  setNotes,
+} from "../store/slices/projectsSlice";
 
 export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
-  const {
-    projects,
-    setView,
-    openPrompt,
-    addSubtask,
-    toggleSubtask,
-    delSubtask,
-    addAISubtasks,
-    setNotes,
-  } = useStore();
+  const dispatch = useDispatch();
+  const projects = useSelector((state: RootState) => state.projects.projects);
   const p = projects.find((p) => p.id === projectId);
 
   if (!p)
     return (
       <div className="p-6">
         <button
-          onClick={() => setView("projects")}
+          onClick={() => dispatch(setView("projects"))}
           className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 mb-4"
         >
           <ArrowLeft size={18} /> Back
@@ -31,7 +33,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
   return (
     <div className="flex flex-col gap-6 p-6">
       <button
-        onClick={() => setView("projects")}
+        onClick={() => dispatch(setView("projects"))}
         className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
       >
         <ArrowLeft size={18} /> Back
@@ -44,14 +46,19 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
           <span className="font-semibold">Subtasks</span>
           <button
             onClick={() =>
-              openPrompt("Add subtask", (t) => addSubtask(p.id, t))
+              dispatch(
+                openPrompt({
+                  label: "Add subtask",
+                  onSubmit: (t) => dispatch(addSubtask({ projectId: p.id, text: t })),
+                })
+              )
             }
             className="p-1 text-gray-400 hover:text-blue-600"
           >
             <Plus size={18} />
           </button>
           <button
-            onClick={() => addAISubtasks(p.id)}
+            onClick={() => dispatch(addAISubtasks(p.id))}
             className="p-1 text-gray-400 hover:text-purple-600"
           >
             <Wand2 size={18} />
@@ -69,7 +76,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
               <input
                 type="checkbox"
                 checked={s.done}
-                onChange={() => toggleSubtask(p.id, s.id)}
+                onChange={() => dispatch(toggleSubtask({ projectId: p.id, subtaskId: s.id }))}
                 className="mr-2 accent-blue-600"
               />
               <span
@@ -80,7 +87,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
                 {s.text}
               </span>
               <button
-                onClick={() => delSubtask(p.id, s.id)}
+                onClick={() => dispatch(delSubtask({ projectId: p.id, subtaskId: s.id }))}
                 className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
               >
                 <Trash2 size={16} />
@@ -95,7 +102,7 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
         <div className="font-semibold mb-1">Project Notes</div>
         <textarea
           value={p.notes}
-          onChange={(e) => setNotes(p.id, e.target.value)}
+          onChange={(e) => dispatch(setNotes({ projectId: p.id, notes: e.target.value }))}
           className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400"
         />
       </section>

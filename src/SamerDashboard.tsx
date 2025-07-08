@@ -1,5 +1,8 @@
 import React from "react";
-import { useStore } from "./hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { openPrompt as openPromptAction, closePrompt as closePromptAction } from "../store/slices/promptSlice";
+import { setView as setViewAction } from "../store/slices/viewSlice";
 import { Sidebar } from "./components/Sidebar";
 import { ProjectsView } from "./components/ProjectsView";
 import { ProjectDetailView } from "./components/ProjectDetailView";
@@ -9,8 +12,11 @@ import { ReviewView } from "./components/ReviewView";
 import { Prompt } from "./components/Prompt";
 
 const SamerDashboard: React.FC = () => {
-  console.log("SamerDashboard rendered");
-  const { view, isPromptOpen, promptLabel, promptOnSubmit, openPrompt, closePrompt } = useStore();
+  const dispatch = useDispatch();
+  const isPromptOpen = useSelector((state: RootState) => state.prompt.open);
+  const promptLabel = useSelector((state: RootState) => state.prompt.label);
+  const promptOnSubmit = useSelector((state: RootState) => state.prompt.onSubmit);
+  const view = useSelector((state: RootState) => state.view.currentView);
 
   let Main: React.ReactNode;
   if (view === "projects") Main = <ProjectsView />;
@@ -24,10 +30,11 @@ const SamerDashboard: React.FC = () => {
       <Sidebar />
       <main className="flex-1 overflow-y-auto">{Main}</main>
       <Prompt
+        key={isPromptOpen ? "open-prompt" : "closed-prompt"}
         open={isPromptOpen}
         label={promptLabel}
-        onSubmit={promptOnSubmit}
-        onClose={closePrompt}
+        onSubmit={promptOnSubmit || (() => {})}
+        onClose={() => dispatch(closePromptAction())}
         className={isPromptOpen ? "" : "hidden"}
       />
     </div>

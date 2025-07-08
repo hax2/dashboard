@@ -1,14 +1,17 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
-import { useStore } from "../hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { setView } from "../store/slices/viewSlice";
 
 export const ReviewView: React.FC = () => {
-  const { history, setView } = useStore();
+  const dispatch = useDispatch();
+  const history = useSelector((state: RootState) => state.history.history);
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <button
-        onClick={() => setView("projects")}
+        onClick={() => dispatch(setView("projects"))}
         className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
       >
         <ArrowLeft size={18} /> Back

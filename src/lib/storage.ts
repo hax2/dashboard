@@ -45,12 +45,3 @@ export const importAllData = (file: File) => {
   };
   reader.readAsText(file);
 };
-
-export const loadState = <T>(key: string, fallback: T): T => {
-  const value = localStorage.getItem(key);
-  return value ? JSON.parse(value) : fallback;
-};
-
-export const saveState = <T>(key: string, value: T) => {
-  localStorage.setItem(key, JSON.stringify(value));
-};

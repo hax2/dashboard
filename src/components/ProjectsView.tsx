@@ -1,20 +1,22 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { useStore } from "../hooks/useStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { openPrompt } from "../store/slices/promptSlice";
+import { addProject, delProject, completeProject } from "../store/slices/projectsSlice";
+import { setView } from "../store/slices/viewSlice";
 import { Project } from "../types";
 
 export const ProjectsView: React.FC = () => {
-  const { projects, setView, openPrompt, addProject, delProject, completeProject } = useStore();
+  const dispatch = useDispatch();
+  const projects = useSelector((state: RootState) => state.projects.projects);
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-bold">Projects</h2>
         <button
-          onClick={() => {
-            console.log("Add project button clicked");
-            openPrompt("Add project", addProject);
-          }}
+          onClick={() => dispatch(openPrompt({ label: "Add project", onSubmit: (title) => dispatch(addProject(title)) }))}
           className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus size={20} />
@@ -27,7 +29,7 @@ export const ProjectsView: React.FC = () => {
         {projects
           .filter((p) => !p.completed && !p.deleted)
           .map((p) => (
-            <ProjectCard key={p.id} project={p} setView={setView} delProject={delProject} completeProject={completeProject} />
+            <ProjectCard key={p.id} project={p} />
           ))}
       </div>
     </div>
@@ -36,12 +38,10 @@ export const ProjectsView: React.FC = () => {
 
 interface ProjectCardProps {
     project: Project;
-    setView: (view: { projectId: string }) => void;
-    delProject: (id: string) => void;
-    completeProject: (id: string) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, setView, delProject, completeProject }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+    const dispatch = useDispatch();
     const open = project.subtasks.filter((s) => !s.done);
     return (
         <div
@@ -49,13 +49,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, setView, delProject,
         >
             <div className="flex items-center justify-between">
                 <button
-                    onClick={() => setView({ projectId: project.id })}
+                    onClick={() => dispatch(setView({ projectId: project.id }))}
                     className="text-lg font-semibold text-blue-700 hover:underline text-left"
                 >
                     {project.title}
                 </button>
                 <button
-                    onClick={() => delProject(project.id)}
+                    onClick={() => dispatch(delProject(project.id))}
                     className="opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
                 >
                     <Trash2 size={18} />
@@ -75,7 +75,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, setView, delProject,
                 )}
             </ul>
             <button
-                onClick={() => completeProject(project.id)}
+                onClick={() => dispatch(completeProject(project.id))}
                 className="self-start px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
             >
                 Done
