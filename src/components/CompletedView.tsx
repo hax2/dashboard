@@ -15,7 +15,7 @@ export const CompletedView: React.FC = () => {
     <div className="flex flex-col gap-6 p-6">
       <button
         onClick={() => dispatch(setView("projects"))}
-        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 w-fit"
+        className="flex items-center gap-1 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-dark-surface dark:hover:bg-dark-background w-fit"
       >
         <ArrowLeft size={18} /> Back
       </button>

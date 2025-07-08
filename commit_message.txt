@@ -1,1 +1,1 @@
-feat: track completed and deleted daily/weekly tasks
+fix: build error and re-enable completed/deleted task tracking
