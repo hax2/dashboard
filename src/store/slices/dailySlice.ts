@@ -27,10 +27,19 @@ const dailySlice = createSlice({
       }
     },
     delDaily: (state, action: PayloadAction<string>) => {
-      state.daily = state.daily.filter(t => t.id !== action.payload);
+      const task = state.daily.find(t => t.id === action.payload);
+      if (task) {
+        task.deleted = true;
+      }
+    },
+    restoreDaily: (state, action: PayloadAction<string>) => {
+      const task = state.daily.find(t => t.id === action.payload);
+      if (task) {
+        task.deleted = false;
+      }
     },
   },
 });
 
-export const { addDaily, toggleDaily, delDaily } = dailySlice.actions;
+export const { addDaily, toggleDaily, delDaily, restoreDaily } = dailySlice.actions;
 export default dailySlice.reducer;

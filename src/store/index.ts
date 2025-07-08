@@ -6,7 +6,6 @@ import dailyReducer from './slices/dailySlice';
 import weeklyReducer from './slices/weeklySlice';
 import scratchReducer from './slices/scratchSlice';
 import completedReducer from './slices/completedSlice';
-import deletedReducer from './slices/deletedSlice';
 import historyReducer from './slices/historySlice';
 import { localStorageMiddleware, loadStateFromLocalStorage } from './middleware/localStorageMiddleware';
 import { STORAGE } from '../lib/storage';
@@ -17,7 +16,6 @@ const preloadedState = {
   projects: { projects: loadStateFromLocalStorage(STORAGE.projects, []) },
   scratch: { scratch: loadStateFromLocalStorage(STORAGE.scratch, '') },
   completed: loadStateFromLocalStorage(STORAGE.completed, { daily: [], weekly: [], projects: [] }),
-  deleted: loadStateFromLocalStorage(STORAGE.deleted, { daily: [], weekly: [], projects: [] }),
   history: { history: loadStateFromLocalStorage(STORAGE.history, []) },
 };
 
@@ -30,7 +28,6 @@ export const store = configureStore({
     weekly: weeklyReducer,
     scratch: scratchReducer,
     completed: completedReducer,
-    deleted: deletedReducer,
     history: historyReducer,
   },
   preloadedState,
