@@ -6,7 +6,7 @@ import {
   DailyHistoryEntry,
 } from "../types";
 import { loadState, saveState, STORAGE } from "../lib/storage";
-import { todayISO, uuid } from "./utils";
+import { todayISO, uuid } from "../lib/utils";
 
 export const useStore = () => {
   const [daily, setDaily] = useState<Task[]>(() =>
