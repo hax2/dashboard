@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { setView } from "../store/slices/viewSlice";
+import { restoreDeletedProject } from "../store/slices/projectsSlice";
 import { Project } from "../types";
 
 export const DeletedView: React.FC = () => {
@@ -33,6 +34,12 @@ export const DeletedView: React.FC = () => {
               <span className="flex-1 text-sm line-through text-gray-400">
                 {project.title}
               </span>
+              <button
+                onClick={() => dispatch(restoreDeletedProject(project.id))}
+                className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
+              >
+                Restore
+              </button>
             </li>
           ))}
         </ul>

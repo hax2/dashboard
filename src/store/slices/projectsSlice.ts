@@ -72,8 +72,20 @@ const projectsSlice = createSlice({
         project.notes = action.payload.notes;
       }
     },
+    restoreCompletedProject: (state, action: PayloadAction<string>) => {
+      const project = state.projects.find(p => p.id === action.payload);
+      if (project) {
+        project.completed = false;
+      }
+    },
+    restoreDeletedProject: (state, action: PayloadAction<string>) => {
+      const project = state.projects.find(p => p.id === action.payload);
+      if (project) {
+        project.deleted = false;
+      }
+    },
   },
 });
 
-export const { addProject, delProject, completeProject, addSubtask, toggleSubtask, delSubtask, addAISubtasks, setNotes } = projectsSlice.actions;
+export const { addProject, delProject, completeProject, addSubtask, toggleSubtask, delSubtask, addAISubtasks, setNotes, restoreCompletedProject, restoreDeletedProject } = projectsSlice.actions;
 export default projectsSlice.reducer;
