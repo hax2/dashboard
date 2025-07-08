@@ -55,7 +55,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                     {project.title}
                 </button>
                 <button
-                    onClick={() => dispatch(delProject(project.id))}
+                    onClick={() => {
+                        dispatch(delProject(project.id));
+                    }}
                     className="opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
                 >
                     <Trash2 size={18} />
@@ -75,7 +77,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                 )}
             </ul>
             <button
-                onClick={() => dispatch(completeProject(project.id))}
+                onClick={() => {
+                    dispatch(completeProject(project.id));
+                }}
                 className="self-start px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
             >
                 Done

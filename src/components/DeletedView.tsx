@@ -1,27 +1,14 @@
 import React from "react";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
-import { restore, purge } from "../store/slices/deletedSlice";
-import { addDaily } from "../store/slices/dailySlice";
-import { addWeekly } from "../store/slices/weeklySlice";
-import { addProject } from "../store/slices/projectsSlice";
 import { setView } from "../store/slices/viewSlice";
+import { Project } from "../types";
 
 export const DeletedView: React.FC = () => {
   const dispatch = useDispatch();
-  const deleted = useSelector((state: RootState) => state.deleted);
-
-  const handleRestore = (type: "daily" | "weekly" | "projects", item: any) => {
-    dispatch(restore({ type, item }));
-    if (type === "daily") {
-      dispatch(addDaily(item.text));
-    } else if (type === "weekly") {
-      dispatch(addWeekly(item.text));
-    } else if (type === "projects") {
-      dispatch(addProject(item.title));
-    }
-  };
+  const projects = useSelector((state: RootState) => state.projects.projects);
+  const deletedProjects = projects.filter((p: Project) => p.deleted);
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -31,40 +18,25 @@ export const DeletedView: React.FC = () => {
       >
         <ArrowLeft size={18} /> Back
       </button>
-      <h2 className="text-2xl font-bold">Trash</h2>
+      <h2 className="text-2xl font-bold">Deleted Projects</h2>
 
-      {(["daily", "weekly", "projects"] as const).map((type) => (
-        <section key={type}>
-          <div className="font-semibold mb-1 capitalize">{type}</div>
-          <ul className="flex flex-col gap-1">
-            {(deleted as any)[type].length === 0 && (
-              <li className="text-gray-400 text-sm">Empty</li>
-            )}
-            {(deleted as any)[type].map((item: any) => (
-              <li
-                key={item.id}
-                className="flex items-center group hover:bg-gray-50 rounded px-1"
-              >
-                <span className="flex-1 text-sm line-through text-gray-400">
-                  {type === "projects" ? item.title : item.text}
-                </span>
-                <button
-                  onClick={() => handleRestore(type, item)}
-                  className="ml-2 px-2 py-0.5 rounded bg-green-100 hover:bg-green-200 text-green-700 text-xs"
-                >
-                  Restore
-                </button>
-                <button
-                  onClick={() => dispatch(purge({ type, id: item.id }))}
-                  className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      <section>
+        <ul className="flex flex-col gap-1">
+          {deletedProjects.length === 0 && (
+            <li className="text-gray-400 text-sm">No deleted projects</li>
+          )}
+          {deletedProjects.map((project: Project) => (
+            <li
+              key={project.id}
+              className="flex items-center group hover:bg-gray-50 rounded px-1"
+            >
+              <span className="flex-1 text-sm line-through text-gray-400">
+                {project.title}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 };
