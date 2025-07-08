@@ -17,17 +17,33 @@ export const exportAllData = () => {
   const dump: Record<string, unknown> = {};
   STORAGE_KEYS.forEach((k) => {
     const v = localStorage.getItem(k);
-    if (v) dump[k] = JSON.parse(v);
+    if (v) {
+      try {
+        dump[k] = JSON.parse(v);
+      } catch (e) {
+        console.error(`Error parsing localStorage key "${k}":`, e);
+        alert(`Error: Corrupted data found for "${k}". Please check your browser's console for details.`);
+        return; // Stop processing if data is corrupted
+      }
+    }
   });
-  const blob = new Blob([JSON.stringify(dump, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `dashboard-backup-${todayISO()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+
+  console.log("Data to be exported:", dump); // Log the data being exported
+
+  try {
+    const blob = new Blob([JSON.stringify(dump, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-backup-${todayISO()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("Error creating or downloading backup file:", e);
+    alert("Error: Could not create or download the backup file. Please check your browser's console for details.");
+  }
 };
 
 export const importAllData = (file: File) => {
