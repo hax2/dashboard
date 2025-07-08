@@ -9,6 +9,7 @@ export const STORAGE = {
   completed: "samer-completed-v2",
   deleted: "samer-deleted-v2",
   history: "samer-daily-history-v2",
+  sidebar: "samer-sidebar-v2",
 } as const;
 
 export const STORAGE_KEYS = Object.values(STORAGE);
@@ -22,8 +23,7 @@ export const exportAllData = () => {
         dump[k] = JSON.parse(v);
       } catch (e) {
         console.error(`Error parsing localStorage key "${k}":`, e);
-        alert(`Error: Corrupted data found for "${k}". Please check your browser's console for details.`);
-        return; // Stop processing if data is corrupted
+        // Do not return; continue processing other keys even if one is corrupted
       }
     }
   });

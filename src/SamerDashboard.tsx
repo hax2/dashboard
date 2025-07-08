@@ -18,6 +18,7 @@ const SamerDashboard: React.FC = () => {
   const promptLabel = useSelector((state: RootState) => state.prompt.label);
   const promptOnSubmit = useSelector((state: RootState) => state.prompt.onSubmit);
   const view = useSelector((state: RootState) => state.view.currentView);
+  const isSidebarOpen = useSelector((state: RootState) => state.sidebar.isOpen);
 
   let Main: React.ReactNode;
   if (view === "projects") Main = <ProjectsView />;
@@ -28,8 +29,8 @@ const SamerDashboard: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-dark-background text-gray-800 dark:text-dark-onBackground">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      {isSidebarOpen && <Sidebar />}
+      <main className={`flex-1 overflow-y-auto ${isSidebarOpen ? '' : 'w-full'}`}>
         <AnimatePresence>
           {Main}
         </AnimatePresence>

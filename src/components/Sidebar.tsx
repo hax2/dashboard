@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Moon, Sun, Plus, Trash2 } from "lucide-react";
+import { Moon, Sun, Plus, Trash2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useDarkMode } from "../hooks/useDarkMode";
 import { daysAgo } from "../lib/utils";
 import { exportAllData, importAllData } from "../lib/storage";
@@ -12,6 +12,7 @@ import { addDaily, toggleDaily, delDaily, resetDaily } from "../store/slices/dai
 import { addWeekly, completeWeekly, delWeekly } from "../store/slices/weeklySlice";
 import { setScratch } from "../store/slices/scratchSlice";
 import { addCompletedDaily } from "../store/slices/completedSlice";
+import { toggleSidebar } from "../store/slices/sidebarSlice";
 
 
 export const Sidebar: React.FC = () => {
@@ -20,6 +21,7 @@ export const Sidebar: React.FC = () => {
   const weekly = useSelector((state: RootState) => state.weekly.weekly);
   const scratch = useSelector((state: RootState) => state.scratch.scratch);
   const view = useSelector((state: RootState) => state.view.currentView);
+  const isSidebarOpen = useSelector((state: RootState) => state.sidebar.isOpen);
   const [isDarkMode, toggleDarkMode] = useDarkMode();
 
   const fileRef = React.useRef<HTMLInputElement>(null);
@@ -53,7 +55,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-80 h-screen bg-white dark:bg-dark-surface border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4">
+    <aside className={`h-screen bg-white dark:bg-dark-surface border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4 ${isSidebarOpen ? 'w-80' : 'w-0 overflow-hidden'}`}>
       {/* Date and New-Day button */}
       <div className="flex flex-col gap-2">
         <div className="text-lg font-bold">
@@ -212,6 +214,12 @@ export const Sidebar: React.FC = () => {
           className="mt-2 p-2 rounded-full bg-gray-200 dark:bg-dark-background self-center"
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+        <button
+          onClick={() => dispatch(toggleSidebar())}
+          className="mt-2 p-2 rounded-full bg-gray-200 dark:bg-dark-background self-center"
+        >
+          {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
         </button>
       </div>
     </aside>

@@ -30,6 +30,7 @@ export const localStorageMiddleware: Middleware<{}, RootState> =
       localStorage.setItem(STORAGE.completed, JSON.stringify(state.completed || []));
       localStorage.setItem(STORAGE.deleted, JSON.stringify(state.deleted || []));
       localStorage.setItem(STORAGE.history, JSON.stringify(state.history.history || []));
+      localStorage.setItem(STORAGE.sidebar, JSON.stringify(state.sidebar.isOpen));
     } catch (e) {
       console.warn("Could not save state to localStorage", e);
     }
