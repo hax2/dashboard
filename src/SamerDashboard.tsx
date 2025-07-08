@@ -11,6 +11,8 @@ import { CompletedView } from "./components/CompletedView";
 import { DeletedView } from "./components/DeletedView";
 import { ReviewView } from "./components/ReviewView";
 import { Prompt } from "./components/Prompt";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { toggleSidebar } from "./store/slices/sidebarSlice";
 
 const SamerDashboard: React.FC = () => {
   const dispatch = useDispatch();
@@ -31,6 +33,12 @@ const SamerDashboard: React.FC = () => {
     <div className="flex min-h-screen bg-gray-50 dark:bg-dark-background text-gray-800 dark:text-dark-onBackground">
       {isSidebarOpen && <Sidebar />}
       <main className={`flex-1 overflow-y-auto ${isSidebarOpen ? '' : 'w-full'}`}>
+        <button
+          onClick={() => dispatch(toggleSidebar())}
+          className="absolute top-4 left-4 p-2 rounded-full bg-gray-200 dark:bg-dark-background z-10"
+        >
+          {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+        </button>
         <AnimatePresence>
           {Main}
         </AnimatePresence>

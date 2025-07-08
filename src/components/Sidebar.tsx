@@ -215,12 +215,6 @@ export const Sidebar: React.FC = () => {
         >
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
-        <button
-          onClick={() => dispatch(toggleSidebar())}
-          className="mt-2 p-2 rounded-full bg-gray-200 dark:bg-dark-background self-center"
-        >
-          {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
-        </button>
       </div>
     </aside>
   );
