@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Project,
   Task,
@@ -51,10 +51,15 @@ export const useStore = () => {
   useEffect(() => saveState(STORAGE.deleted, deleted), [deleted]);
   useEffect(() => saveState(STORAGE.history, history), [history]);
 
-  const openPrompt = (label: string, onSubmit: (v: string) => void) =>
+  const openPrompt = (label: string, onSubmit: (v: string) => void) => {
+    console.log("openPrompt called with label:", label);
     setPrompt({ open: true, label, onSubmit });
-  const closePrompt = () =>
+    console.log("Prompt state after setPrompt:", { open: true, label, onSubmit });
+  };
+  const closePrompt = () => {
+    console.log("closePrompt called");
     setPrompt({ open: false, label: "", onSubmit: () => {} });
+  };
 
   const newDay = () => {
     const done = daily.filter((t) => t.done);

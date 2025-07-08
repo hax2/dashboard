@@ -11,7 +11,10 @@ export const ProjectsView: React.FC = () => {
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-bold">Projects</h2>
         <button
-          onClick={() => openPrompt("Add project", addProject)}
+          onClick={() => {
+            console.log("Add project button clicked");
+            openPrompt("Add project", addProject);
+          }}
           className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus size={20} />
