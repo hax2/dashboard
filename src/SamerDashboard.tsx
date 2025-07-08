@@ -27,6 +27,7 @@ const SamerDashboard: React.FC = () => {
         label={prompt.label}
         onSubmit={prompt.onSubmit}
         onClose={closePrompt}
+        className={prompt.open ? "" : "hidden"}
       />
     </div>
   );

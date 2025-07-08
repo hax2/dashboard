@@ -5,6 +5,7 @@ interface PromptProps {
   label: string;
   onSubmit: (value: string) => void;
   onClose: () => void;
+  className?: string;
 }
 
 export const Prompt: React.FC<PromptProps> = ({
@@ -12,6 +13,7 @@ export const Prompt: React.FC<PromptProps> = ({
   label,
   onSubmit,
   onClose,
+  className,
 }) => {
   const [val, setVal] = useState("");
 
@@ -21,10 +23,6 @@ export const Prompt: React.FC<PromptProps> = ({
     }
   }, [open]);
 
-  if (!open) {
-    return null;
-  }
-
   const handleSubmit = () => {
     if (val.trim()) {
       onSubmit(val.trim());
@@ -33,7 +31,7 @@ export const Prompt: React.FC<PromptProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/30 ${className}`}>
       <div className="bg-white p-6 w-80 rounded-xl shadow-lg flex flex-col gap-4">
         <label className="font-medium text-gray-700">{label}</label>
         <input
