@@ -27,7 +27,10 @@ const weeklySlice = createSlice({
       }
     },
     delWeekly: (state, action: PayloadAction<string>) => {
-      state.weekly = state.weekly.filter(t => t.id !== action.payload);
+      const task = state.weekly.find(t => t.id === action.payload);
+      if (task) {
+        task.deleted = true;
+      }
     },
     restoreWeekly: (state, action: PayloadAction<string>) => {
       const task = state.weekly.find(t => t.id === action.payload);
