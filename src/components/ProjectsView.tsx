@@ -45,7 +45,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     const open = project.subtasks.filter((s) => !s.done);
     return (
         <div
-            className="bg-white border rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
+            className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl p-4 flex flex-col gap-2 shadow-sm group"
         >
             <div className="flex items-center justify-between">
                 <button
