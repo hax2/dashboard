@@ -37,11 +37,9 @@ export const useStore = () => {
   const [view, setView] = useState<
     "projects" | "completed" | "deleted" | "review" | { projectId: string }
   >("projects");
-  const [prompt, setPrompt] = useState<{
-    open: boolean;
-    label: string;
-    onSubmit: (v: string) => void;
-  }>({ open: false, label: "", onSubmit: () => {} });
+  const [isPromptOpen, setIsPromptOpen] = useState(false);
+  const [promptLabel, setPromptLabel] = useState("");
+  const [promptOnSubmit, setPromptOnSubmit] = useState<((v: string) => void)>(() => () => {});
 
   useEffect(() => saveState(STORAGE.daily, daily), [daily]);
   useEffect(() => saveState(STORAGE.weekly, weekly), [weekly]);
@@ -53,12 +51,16 @@ export const useStore = () => {
 
   const openPrompt = (label: string, onSubmit: (v: string) => void) => {
     console.log("openPrompt called with label:", label);
-    setPrompt({ open: true, label, onSubmit });
+    setIsPromptOpen(true);
+    setPromptLabel(label);
+    setPromptOnSubmit(() => onSubmit);
     console.log("Prompt state after setPrompt:", { open: true, label, onSubmit });
   };
   const closePrompt = () => {
     console.log("closePrompt called");
-    setPrompt({ open: false, label: "", onSubmit: () => {} });
+    setIsPromptOpen(false);
+    setPromptLabel("");
+    setPromptOnSubmit(() => () => {});
   };
 
   const newDay = () => {
@@ -230,7 +232,9 @@ export const useStore = () => {
     deleted,
     history,
     view,
-    prompt,
+    isPromptOpen,
+    promptLabel,
+    promptOnSubmit,
     setScratch,
     setView,
     openPrompt,

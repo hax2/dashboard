@@ -15,7 +15,6 @@ export const Prompt: React.FC<PromptProps> = ({
   onClose,
   className,
 }) => {
-  console.log("Prompt component rendered. open prop:", open);
   const [val, setVal] = useState("");
 
   useEffect(() => {

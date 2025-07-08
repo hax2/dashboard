@@ -10,7 +10,7 @@ import { Prompt } from "./components/Prompt";
 
 const SamerDashboard: React.FC = () => {
   console.log("SamerDashboard rendered");
-  const { view, prompt, openPrompt, closePrompt } = useStore();
+  const { view, isPromptOpen, promptLabel, promptOnSubmit, openPrompt, closePrompt } = useStore();
 
   let Main: React.ReactNode;
   if (view === "projects") Main = <ProjectsView />;
@@ -24,11 +24,11 @@ const SamerDashboard: React.FC = () => {
       <Sidebar />
       <main className="flex-1 overflow-y-auto">{Main}</main>
       <Prompt
-        open={prompt.open}
-        label={prompt.label}
-        onSubmit={prompt.onSubmit}
+        open={isPromptOpen}
+        label={promptLabel}
+        onSubmit={promptOnSubmit}
         onClose={closePrompt}
-        className={prompt.open ? "" : "hidden"}
+        className={isPromptOpen ? "" : "hidden"}
       />
     </div>
   );
