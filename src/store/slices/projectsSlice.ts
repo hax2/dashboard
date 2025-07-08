@@ -25,16 +25,10 @@ const projectsSlice = createSlice({
       });
     },
     delProject: (state, action: PayloadAction<string>) => {
-      const index = state.projects.findIndex(p => p.id === action.payload);
-      if (index !== -1) {
-        state.projects[index].deleted = true; // Mark as deleted, don't remove immediately
-      }
+      state.projects = state.projects.filter(p => p.id !== action.payload);
     },
     completeProject: (state, action: PayloadAction<string>) => {
-      const index = state.projects.findIndex(p => p.id === action.payload);
-      if (index !== -1) {
-        state.projects[index].completed = true;
-      }
+      state.projects = state.projects.filter(p => p.id !== action.payload);
     },
     addSubtask: (state, action: PayloadAction<{ projectId: string; text: string }>) => {
       const project = state.projects.find(p => p.id === action.payload.projectId);
