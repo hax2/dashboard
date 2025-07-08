@@ -44,7 +44,9 @@ const deletedSlice = createSlice({
       state.weekly.unshift(action.payload);
     },
     addDeletedProject: (state, action: PayloadAction<Project>) => {
+      console.log("Adding deleted project:", action.payload);
       state.projects.unshift(action.payload);
+      console.log("Deleted projects after add:", state.projects);
     },
   },
 });

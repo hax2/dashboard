@@ -34,7 +34,9 @@ const completedSlice = createSlice({
       state.weekly.unshift(action.payload);
     },
     addCompletedProject: (state, action: PayloadAction<Project>) => {
+      console.log("Adding completed project:", action.payload);
       state.projects.unshift(action.payload);
+      console.log("Completed projects after add:", state.projects);
     },
   },
 });
