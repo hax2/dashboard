@@ -6,8 +6,6 @@ export const STORAGE = {
   weekly: "samer-weekly-tasks-v2",
   projects: "samer-projects-v2",
   scratch: "samer-scratchpad-v2",
-  completed: "samer-completed-v2",
-  deleted: "samer-deleted-v2",
   history: "samer-daily-history-v2",
   sidebar: "samer-sidebar-v2",
 } as const;

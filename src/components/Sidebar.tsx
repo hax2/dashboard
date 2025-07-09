@@ -5,7 +5,7 @@ import { useDarkMode } from "../hooks/useDarkMode";
 import { daysAgo } from "../lib/utils";
 import { exportAllData, importAllData } from "../lib/storage";
 import { RootState } from "../store";
-import { setView } from "../store/slices/viewSlice";
+import { setView, setCurrentDay, nextDay, previousDay } from "../store/slices/viewSlice";
 import { openPrompt } from "../store/slices/promptSlice";
 import { newDay } from "../store/slices/historySlice";
 import { addDaily, toggleDaily, delDaily, resetDaily } from "../store/slices/dailySlice";
@@ -16,9 +16,10 @@ import { toggleSidebar } from "../store/slices/sidebarSlice";
 
 export const Sidebar: React.FC = () => {
   const dispatch = useDispatch();
-  const daily = useSelector((state: RootState) => state.daily.daily);
+  const currentDay = useSelector((state: RootState) => state.view.currentDay);
+  const daily = useSelector((state: RootState) => state.daily.daily[currentDay] || []);
   const weekly = useSelector((state: RootState) => state.weekly.weekly);
-  const scratch = useSelector((state: RootState) => state.scratch.scratch);
+  const scratch = useSelector((state: RootState) => state.scratch.scratch[currentDay] || '');
   const view = useSelector((state: RootState) => state.view.currentView);
   const isSidebarOpen = useSelector((state: RootState) => state.sidebar.isOpen);
   const [isDarkMode, toggleDarkMode] = useDarkMode();
@@ -35,13 +36,14 @@ export const Sidebar: React.FC = () => {
     if (doneDailyTasks.length) {
       dispatch(newDay(doneDailyTasks));
     }
-    dispatch(resetDaily());
+    dispatch(resetDaily(currentDay));
+    dispatch(nextDay());
   };
 
   const handleDelDaily = (id: string) => {
     const taskToDelete = daily.find((t) => t.id === id);
     if (taskToDelete) {
-      dispatch(delDaily(id));
+      dispatch(delDaily({ date: currentDay, id }));
     }
   };
 
@@ -56,12 +58,16 @@ export const Sidebar: React.FC = () => {
     <aside className={`h-screen bg-white dark:bg-dark-surface border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4 ${isSidebarOpen ? 'w-80' : 'w-0 overflow-hidden'}`}>
       {/* Date and New-Day button */}
       <div className="flex flex-col gap-2">
-        <div className="text-lg font-bold">
-          {new Date().toLocaleDateString(undefined, {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          })}
+        <div className="flex items-center justify-between">
+          <button onClick={() => dispatch(previousDay())} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">←</button>
+          <div className="text-lg font-bold">
+            {new Date(currentDay).toLocaleDateString(undefined, {
+              weekday: "long",
+              month: "short",
+              day: "numeric",
+            })}
+          </div>
+          <button onClick={() => dispatch(nextDay())} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">→</button>
         </div>
         <button
           onClick={handleNewDay}
@@ -76,7 +82,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between mb-1">
           <span className="font-semibold">Daily Tasks</span>
           <button
-            onClick={() => dispatch(openPrompt({ label: "Add daily task", onSubmit: (text) => dispatch(addDaily(text)) }))}
+            onClick={() => dispatch(openPrompt({ label: "Add daily task", onSubmit: (text) => dispatch(addDaily({ date: currentDay, text })) }))}
             className="p-1 text-gray-400 hover:text-blue-600"
           >
             <Plus size={18} />
@@ -94,7 +100,7 @@ export const Sidebar: React.FC = () => {
               <input
                 type="checkbox"
                 checked={t.done}
-                onChange={() => dispatch(toggleDaily(t.id))}
+                onChange={() => dispatch(toggleDaily({ date: currentDay, id: t.id }))}
                 className="mr-2 accent-blue-600"
               />
               <span
@@ -163,7 +169,7 @@ export const Sidebar: React.FC = () => {
         <textarea
           placeholder="Quick notes..."
           value={scratch}
-          onChange={(e) => dispatch(setScratch(e.target.value))}
+          onChange={(e) => dispatch(setScratch({ date: currentDay, text: e.target.value }))}
           className="w-full min-h-[60px] max-h-32 border rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 bg-white dark:bg-dark-surface dark:border-gray-600"
         />
       </section>
