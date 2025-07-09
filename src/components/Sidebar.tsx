@@ -32,20 +32,25 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleNewDay = () => {
+    // Archive completed tasks from the *current logical day* to history
     const doneDailyTasks = daily.filter((t) => t.done).map((t) => t.text);
     if (doneDailyTasks.length) {
       dispatch(newDay(doneDailyTasks));
     }
 
-    // Prepare tasks for the next day: copy current day's tasks and reset their 'done' status
-    const tasksForNextDay = daily.map(task => ({ ...task, done: false }));
+    // Prepare tasks for the *next logical day*: copy current day's tasks and reset their 'done' status
+    const tasksForNextLogicalDay = daily.map(task => ({ ...task, done: false }));
 
-    const current = new Date(currentDay);
-    current.setDate(current.getDate() + 1);
-    const nextDayDate = current.toISOString().slice(0, 10);
+    // Calculate the *next logical day's date*
+    const currentLogicalDayDate = new Date(currentDay);
+    currentLogicalDayDate.setDate(currentLogicalDayDate.getDate() + 1);
+    const nextLogicalDayDate = currentLogicalDayDate.toISOString().slice(0, 10);
 
-    dispatch(initializeDailyTasksForDay({ date: nextDayDate, tasks: tasksForNextDay }));
-    dispatch(setCurrentDay(nextDayDate));
+    // Initialize the daily tasks for the *next logical day*
+    dispatch(initializeDailyTasksForDay({ date: nextLogicalDayDate, tasks: tasksForNextLogicalDay }));
+
+    // Advance the *current logical day* in the view slice
+    dispatch(setCurrentDay(nextLogicalDayDate));
   };
 
   const handleDelDaily = (id: string) => {
@@ -69,7 +74,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between">
           <button onClick={() => dispatch(previousDay())} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">←</button>
           <div className="text-lg font-bold">
-            {new Date(currentDay).toLocaleDateString(undefined, {
+            {new Date().toLocaleDateString(undefined, {
               weekday: "long",
               month: "short",
               day: "numeric",

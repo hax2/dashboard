@@ -1,1 +1,1 @@
-fix: resolve revoked proxy error by updating localStorage handling
+feat: implement new day logic with task inheritance
