@@ -1,1 +1,1 @@
-feat: add day navigation and connect scratchpad to days
+fix: resolve revoked proxy error by updating localStorage handling

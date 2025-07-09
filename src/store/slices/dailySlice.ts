@@ -60,8 +60,12 @@ const dailySlice = createSlice({
         });
       }
     },
+    initializeDailyTasksForDay: (state, action: PayloadAction<{ date: string; tasks: Task[] }>) => {
+      const { date, tasks } = action.payload;
+      state.daily[date] = tasks;
+    },
   },
 });
 
-export const { addDaily, toggleDaily, delDaily, restoreDaily, resetDaily } = dailySlice.actions;
+export const { addDaily, toggleDaily, delDaily, restoreDaily, resetDaily, initializeDailyTasksForDay } = dailySlice.actions;
 export default dailySlice.reducer;

@@ -36,8 +36,16 @@ export const Sidebar: React.FC = () => {
     if (doneDailyTasks.length) {
       dispatch(newDay(doneDailyTasks));
     }
-    dispatch(resetDaily(currentDay));
-    dispatch(nextDay());
+
+    // Prepare tasks for the next day: copy current day's tasks and reset their 'done' status
+    const tasksForNextDay = daily.map(task => ({ ...task, done: false }));
+
+    const current = new Date(currentDay);
+    current.setDate(current.getDate() + 1);
+    const nextDayDate = current.toISOString().slice(0, 10);
+
+    dispatch(initializeDailyTasksForDay({ date: nextDayDate, tasks: tasksForNextDay }));
+    dispatch(setCurrentDay(nextDayDate));
   };
 
   const handleDelDaily = (id: string) => {
