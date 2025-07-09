@@ -1,1 +1,1 @@
-chore: remove unused slices and update gitignore
+fix: remove completedSlice from store

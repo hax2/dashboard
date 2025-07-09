@@ -11,7 +11,6 @@ import { newDay } from "../store/slices/historySlice";
 import { addDaily, toggleDaily, delDaily, resetDaily } from "../store/slices/dailySlice";
 import { addWeekly, completeWeekly, delWeekly } from "../store/slices/weeklySlice";
 import { setScratch } from "../store/slices/scratchSlice";
-import { addCompletedDaily } from "../store/slices/completedSlice";
 import { toggleSidebar } from "../store/slices/sidebarSlice";
 
 
@@ -35,7 +34,6 @@ export const Sidebar: React.FC = () => {
     const doneDailyTasks = daily.filter((t) => t.done).map((t) => t.text);
     if (doneDailyTasks.length) {
       dispatch(newDay(doneDailyTasks));
-      daily.filter((t) => t.done).forEach((t) => dispatch(addCompletedDaily(t)));
     }
     dispatch(resetDaily());
   };
