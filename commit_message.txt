@@ -1,1 +1,1 @@
-fix: remove completedSlice from Sidebar
+feat: prevent FOUC for dark mode
