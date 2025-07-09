@@ -1,1 +1,1 @@
-fix: remove completedSlice from store
+fix: remove completedSlice from Sidebar
