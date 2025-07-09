@@ -1,1 +1,1 @@
-feat: implement new day logic with task inheritance
+fix: refine new day logic in Sidebar.tsx

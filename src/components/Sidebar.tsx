@@ -32,6 +32,7 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleNewDay = () => {
+    console.log("handleNewDay called");
     // Archive completed tasks from the *current logical day* to history
     const doneDailyTasks = daily.filter((t) => t.done).map((t) => t.text);
     if (doneDailyTasks.length) {
