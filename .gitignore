@@ -1,5 +1,3 @@
 node_modules/
 package-lock.json
 src/hooks/useStore.ts
-src/store/slices/completedSlice.ts
-src/store/slices/deletedSlice.ts
