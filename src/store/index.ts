@@ -11,10 +11,10 @@ import { localStorageMiddleware, loadStateFromLocalStorage } from './middleware/
 import { STORAGE } from '../lib/storage';
 
 const preloadedState = {
-  daily: { daily: loadStateFromLocalStorage(STORAGE.daily, []) },
+  daily: { daily: loadStateFromLocalStorage(STORAGE.daily, {}) },
   weekly: { weekly: loadStateFromLocalStorage(STORAGE.weekly, []) },
   projects: { projects: loadStateFromLocalStorage(STORAGE.projects, []) },
-  scratch: { scratch: loadStateFromLocalStorage(STORAGE.scratch, '') },
+  scratch: { scratch: loadStateFromLocalStorage(STORAGE.scratch, {}) },
   history: { history: loadStateFromLocalStorage(STORAGE.history, []) },
   sidebar: { isOpen: loadStateFromLocalStorage(STORAGE.sidebar, true) },
 };
