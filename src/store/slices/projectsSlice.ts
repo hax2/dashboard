@@ -84,8 +84,23 @@ const projectsSlice = createSlice({
         project.deleted = false;
       }
     },
+    setProjectTitle: (state, action: PayloadAction<{ projectId: string; title: string }>) => {
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      if (project) {
+        project.title = action.payload.title;
+      }
+    },
+    setSubtaskText: (state, action: PayloadAction<{ projectId: string; subtaskId: string; text: string }>) => {
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      if (project) {
+        const subtask = project.subtasks.find(s => s.id === action.payload.subtaskId);
+        if (subtask) {
+          subtask.text = action.payload.text;
+        }
+      }
+    },
   },
 });
 
-export const { addProject, delProject, completeProject, addSubtask, toggleSubtask, delSubtask, addAISubtasks, setNotes, restoreCompletedProject, restoreDeletedProject } = projectsSlice.actions;
+export const { addProject, delProject, completeProject, addSubtask, toggleSubtask, delSubtask, addAISubtasks, setNotes, restoreCompletedProject, restoreDeletedProject, setProjectTitle, setSubtaskText } = projectsSlice.actions;
 export default projectsSlice.reducer;

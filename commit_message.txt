@@ -1,1 +1,1 @@
-feat: prevent FOUC for dark mode
+fix: prevent project card from opening when delete/complete buttons are clicked

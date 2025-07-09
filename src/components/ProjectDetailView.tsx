@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import React, { useState, useRef } from "react";
 import { ArrowLeft, Plus, Trash2, Wand2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
@@ -10,12 +11,19 @@ import {
   delSubtask,
   addAISubtasks,
   setNotes,
+  setProjectTitle,
+  setSubtaskText,
 } from "../store/slices/projectsSlice";
 
 export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
   const dispatch = useDispatch();
   const projects = useSelector((state: RootState) => state.projects.projects);
   const p = projects.find((p) => p.id === projectId);
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const subtaskInputRef = useRef<HTMLInputElement>(null);
 
   if (!p)
     return (
@@ -38,7 +46,23 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
       >
         <ArrowLeft size={18} /> Back
       </button>
-      <h2 className="text-2xl font-bold">{p.title}</h2>
+      {isEditingTitle ? (
+        <input
+          ref={titleInputRef}
+          type="text"
+          value={p.title}
+          onChange={(e) => dispatch(setProjectTitle({ projectId: p.id, title: e.target.value }))}
+          onBlur={() => setIsEditingTitle(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setIsEditingTitle(false);
+            }
+          }}
+          className="text-2xl font-bold bg-transparent border-b border-gray-400 focus:outline-none focus:border-blue-500"
+        />
+      ) : (
+        <h2 className="text-2xl font-bold" onClick={() => setIsEditingTitle(true)}>{p.title}</h2>
+      )}
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -84,13 +108,30 @@ export const ProjectDetailView = ({ projectId }: { projectId: string }) => {
                   onChange={() => dispatch(toggleSubtask({ projectId: p.id, subtaskId: s.id }))}
                   className="mr-2 accent-blue-600"
                 />
+                {editingSubtaskId === s.id ? (
+                  <input
+                    ref={subtaskInputRef}
+                    type="text"
+                    value={s.text}
+                    onChange={(e) => dispatch(setSubtaskText({ projectId: p.id, subtaskId: s.id, text: e.target.value }))}
+                    onBlur={() => setEditingSubtaskId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setEditingSubtaskId(null);
+                      }
+                    }}
+                    className="flex-1 text-sm bg-transparent border-b border-gray-400 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
                 <span
                   className={`flex-1 text-sm ${
                     s.done ? "line-through text-gray-400" : ""
                   }`}
+                  onClick={() => setEditingSubtaskId(s.id)}
                 >
                   {s.text}
                 </span>
+                )}
                 <button
                   onClick={() => dispatch(delSubtask({ projectId: p.id, subtaskId: s.id }))}
                   className="ml-2 opacity-0 group-hover:opacity-60 text-gray-400 hover:text-red-500"
